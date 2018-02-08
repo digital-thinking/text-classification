@@ -1,5 +1,6 @@
 package com.ixeption.ml.text.classification.pipeline.impl;
 
+import com.ixeption.ml.text.classification.TextFeature;
 import com.ixeption.ml.text.classification.features.TextFeatureExtractor;
 import com.ixeption.ml.text.classification.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import com.ixeption.ml.text.classification.pipeline.TextProcessingPipeline;
@@ -25,13 +26,12 @@ public class DefaultTextPipeline implements TextProcessingPipeline {
     }
 
     @Override
-    public SparseArray process(String input, Set<String> replaceRegEx, String language) {
-        String s = input;
+    public SparseArray process(TextFeature textFeature) {
         for (TextPreprocessor tp : preprocessors) {
-            s = tp.preprocess(s, replaceRegEx, language);
+            textFeature.setText(tp.preprocess(textFeature));
         }
 
-        return textFeatureExtractor.extract(s);
+        return textFeatureExtractor.extract(textFeature.getText());
 
     }
 
