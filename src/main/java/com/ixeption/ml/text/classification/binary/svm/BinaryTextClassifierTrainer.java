@@ -1,6 +1,7 @@
 package com.ixeption.ml.text.classification.binary.svm;
 
 import com.ixeption.ml.text.classification.PersistenceUtils;
+import com.ixeption.ml.text.classification.Prediction;
 import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.pipeline.TextProcessingPipeline;
 import com.ixeption.ml.text.classification.pipeline.impl.DefaultTextPipeline;
@@ -64,12 +65,14 @@ public class BinaryTextClassifierTrainer {
         return textProcessingPipeline.process(textFeature);
     }
 
-    int predict(TextFeature textFeature) {
+    Prediction predict(TextFeature textFeature) {
         if (sparseArraySVM == null) {
             // should not be called by users
             throw new RuntimeException("Model was not trained");
         }
-        return sparseArraySVM.predict(transform(textFeature));
+        double[] posterior = new double[2];
+        int predict = sparseArraySVM.predict(transform(textFeature), posterior);
+        return new Prediction(predict, posterior);
     }
 
     public ConfusionMatrixMeasure crossValidate(TextFeature[] features, int[] labels) {

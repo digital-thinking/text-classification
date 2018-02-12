@@ -28,8 +28,8 @@ class BinaryTextClassifierTrainerTest {
         initTrainingData();
         BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5);
         TrainedBinaryTextClassifier trained = binaryTextClassifierTrainer.train(testFeatures, testLabels);
-        assertThat(trained.predict(testFeatures[0])).isEqualTo(0);
-        assertThat(trained.predict(testFeatures[1])).isEqualTo(1);
+        assertThat(trained.predict(testFeatures[0]).getLabel()).isEqualTo(0);
+        assertThat(trained.predict(testFeatures[1]).getLabel()).isEqualTo(1);
     }
 
     @Test
@@ -42,8 +42,8 @@ class BinaryTextClassifierTrainerTest {
 
         binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5);
         TrainedBinaryTextClassifier persisted = binaryTextClassifierTrainer.readFromFile(path);
-        assertThat(persisted.predict(testFeatures[0])).isEqualTo(0);
-        assertThat(persisted.predict(testFeatures[1])).isEqualTo(1);
+        assertThat(persisted.predict(testFeatures[0]).getLabel()).isEqualTo(0);
+        assertThat(persisted.predict(testFeatures[1]).getLabel()).isEqualTo(1);
 
 
     }

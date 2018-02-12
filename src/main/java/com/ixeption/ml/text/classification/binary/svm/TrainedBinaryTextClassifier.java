@@ -1,5 +1,6 @@
 package com.ixeption.ml.text.classification.binary.svm;
 
+import com.ixeption.ml.text.classification.Prediction;
 import com.ixeption.ml.text.classification.TextClassifier;
 import com.ixeption.ml.text.classification.features.TextFeature;
 
@@ -12,13 +13,13 @@ public class TrainedBinaryTextClassifier implements TextClassifier {
     }
 
     @Override
-    public int predict(String text) {
+    public Prediction predict(String text) {
         return binaryTextClassifierTrainer.predict(new TextFeature(text, null));
 
     }
 
     @Override
-    public int predict(TextFeature textFeature) {
+    public Prediction predict(TextFeature textFeature) {
         return binaryTextClassifierTrainer.predict(textFeature);
     }
 

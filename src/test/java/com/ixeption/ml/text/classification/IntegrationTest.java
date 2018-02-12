@@ -42,7 +42,7 @@ public class IntegrationTest {
         int[] testY = labels.stream().skip(trainSize).mapToInt(Integer::intValue).toArray();
 
         TextClassifier classifier = binaryTextClassifierTrainer.train(trainX, trainY);
-        int[] predictions = Arrays.stream(testX).map(classifier::predict).mapToInt(Integer::intValue).toArray();
+        int[] predictions = Arrays.stream(testX).map(classifier::predict).mapToInt(Prediction::getLabel).toArray();
 
 
         int correct = 0;
