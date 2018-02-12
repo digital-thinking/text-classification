@@ -2,7 +2,7 @@ package com.ixeption.ml.text.classification.features;
 
 import com.ixeption.ml.text.classification.TextFeature;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -69,7 +69,7 @@ public final class FeatureUtils {
     }
 
     //https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-    public static void shuffle(ArrayList<TextFeature> features, ArrayList<Integer> labels) {
+    public static void shuffle(List<TextFeature> features, List<Integer> labels) {
         Random rnd = ThreadLocalRandom.current();
         for (int i = features.size() - 1; i > 0; i--) {
             int index = rnd.nextInt(i + 1);
