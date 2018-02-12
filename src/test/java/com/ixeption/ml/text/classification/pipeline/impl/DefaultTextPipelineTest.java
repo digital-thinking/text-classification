@@ -1,6 +1,6 @@
 package com.ixeption.ml.text.classification.pipeline.impl;
 
-import com.ixeption.ml.text.classification.TextFeature;
+import com.ixeption.ml.text.classification.features.TextFeature;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

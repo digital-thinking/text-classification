@@ -16,9 +16,10 @@ import smile.nlp.stemmer.Stemmer;
 import smile.nlp.tokenizer.BreakIteratorTokenizer;
 import smile.nlp.tokenizer.Tokenizer;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class HashTrickBagOfWordsFeatureExtractor implements TextFeatureExtractor {
+public class HashTrickBagOfWordsFeatureExtractor implements TextFeatureExtractor, Serializable {
 
     private final Stemmer _stemmer = new PorterStemmer();
     private final Tokenizer _tokenizer = new BreakIteratorTokenizer();

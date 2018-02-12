@@ -1,6 +1,8 @@
 package com.ixeption.ml.text.classification;
 
+import com.ixeption.ml.text.classification.binary.svm.BinaryTextClassifierTrainer;
 import com.ixeption.ml.text.classification.features.FeatureUtils;
+import com.ixeption.ml.text.classification.features.TextFeature;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -16,7 +18,7 @@ public class IntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(IntegrationTest.class);
 
-    public BinaryTextClassifier binaryTextClassifier = new BinaryTextClassifier(0.5, 0.5);
+    public BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5);
 
     @Test
     @Disabled
@@ -28,7 +30,7 @@ public class IntegrationTest {
         FeatureUtils.shuffle(textFeatures, labels);
 
         // cross validate
-        BinaryTextClassifier.ConfusionMatrixMeasure confusionMatrixMeasure = binaryTextClassifier.crossValidate(textFeatures.toArray(new TextFeature[0]), labels.stream().mapToInt(Integer::intValue).toArray());
+        BinaryTextClassifierTrainer.ConfusionMatrixMeasure confusionMatrixMeasure = binaryTextClassifierTrainer.crossValidate(textFeatures.toArray(new TextFeature[0]), labels.stream().mapToInt(Integer::intValue).toArray());
         log.info(" confusion matrix\n" + confusionMatrixMeasure);
 
         // train and validate
@@ -39,7 +41,7 @@ public class IntegrationTest {
         TextFeature[] testX = textFeatures.stream().skip(trainSize).toArray(TextFeature[]::new);
         int[] testY = labels.stream().skip(trainSize).mapToInt(Integer::intValue).toArray();
 
-        TrainedBinaryTextClassifier classifier = binaryTextClassifier.train(trainX, trainY);
+        TextClassifier classifier = binaryTextClassifierTrainer.train(trainX, trainY);
         int[] predictions = Arrays.stream(testX).map(classifier::predict).mapToInt(Integer::intValue).toArray();
 
 

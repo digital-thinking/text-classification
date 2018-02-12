@@ -1,4 +1,4 @@
-package com.ixeption.ml.text.classification;
+package com.ixeption.ml.text.classification.features;
 
 public class TextFeature {
 

@@ -1,8 +1,6 @@
 package com.ixeption.ml.text.classification.preprocessing;
 
-import com.ixeption.ml.text.classification.TextFeature;
-
-import java.util.Set;
+import com.ixeption.ml.text.classification.features.TextFeature;
 
 public interface TextPreprocessor {
 

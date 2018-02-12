@@ -1,6 +1,6 @@
 package com.ixeption.ml.text.classification.pipeline.impl;
 
-import com.ixeption.ml.text.classification.TextFeature;
+import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.features.TextFeatureExtractor;
 import com.ixeption.ml.text.classification.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import com.ixeption.ml.text.classification.pipeline.TextProcessingPipeline;
@@ -11,7 +11,6 @@ import smile.math.SparseArray;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class DefaultTextPipeline implements TextProcessingPipeline {
 

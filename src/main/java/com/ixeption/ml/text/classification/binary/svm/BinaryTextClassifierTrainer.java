@@ -1,5 +1,7 @@
-package com.ixeption.ml.text.classification;
+package com.ixeption.ml.text.classification.binary.svm;
 
+import com.ixeption.ml.text.classification.PersistenceUtils;
+import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.pipeline.TextProcessingPipeline;
 import com.ixeption.ml.text.classification.pipeline.impl.DefaultTextPipeline;
 import org.slf4j.Logger;
@@ -9,22 +11,38 @@ import smile.math.SparseArray;
 import smile.math.kernel.SparseLinearKernel;
 import smile.validation.*;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
-public class BinaryTextClassifier {
+public class BinaryTextClassifierTrainer {
 
-    private static final Logger log = LoggerFactory.getLogger(BinaryTextClassifier.class);
+    private static final Logger log = LoggerFactory.getLogger(BinaryTextClassifierTrainer.class);
 
     private TextProcessingPipeline textProcessingPipeline;
     private double softmarginPenaltyPositive;
     private double softmarginPenaltyNegative;
     private SVM<SparseArray> sparseArraySVM;
 
-    public BinaryTextClassifier(double softmarginPenaltyPositive, double softmarginPenaltyNegative) {
+    /**
+     * creates a trainer, with a {@link DefaultTextPipeline}
+     *
+     * @param softmarginPenaltyPositive the soft margin penalty parameter for positive instances.
+     * @param softmarginPenaltyNegative the soft margin penalty parameter for negative instances.
+     *                                  <p>
+     *                                  Note that penalties are not used when loading a model from file
+     */
+    public BinaryTextClassifierTrainer(double softmarginPenaltyPositive, double softmarginPenaltyNegative) {
         textProcessingPipeline = new DefaultTextPipeline();
         this.softmarginPenaltyNegative = softmarginPenaltyNegative;
         this.softmarginPenaltyPositive = softmarginPenaltyPositive;
 
+    }
+
+    public TrainedBinaryTextClassifier readFromFile(Path file) throws IOException, ClassNotFoundException {
+        log.info("Reading model from file " + file);
+        this.sparseArraySVM = PersistenceUtils.deserialize(file);
+        return new TrainedBinaryTextClassifier(this);
     }
 
 
@@ -33,10 +51,12 @@ public class BinaryTextClassifier {
                 .map(this::transform)//
                 .toArray(SparseArray[]::new);
 
+        log.info("Starting training");
         sparseArraySVM = new SVM<>(new SparseLinearKernel(), softmarginPenaltyPositive, softmarginPenaltyNegative);
         sparseArraySVM.learn(sparseArrays, labels);
         sparseArraySVM.finish();
         sparseArraySVM.trainPlattScaling(sparseArrays, labels);
+        log.info("Training finished");
         return new TrainedBinaryTextClassifier(this);
     }
 
@@ -53,6 +73,7 @@ public class BinaryTextClassifier {
     }
 
     public ConfusionMatrixMeasure crossValidate(TextFeature[] features, int[] labels) {
+        log.info("Starting cross validation");
         SVM.Trainer<SparseArray> svmTrainer = new SVM.Trainer<>(new SparseLinearKernel(), softmarginPenaltyPositive,
                 softmarginPenaltyNegative);
         ConfusionMatrixMeasure confusionMatrix = new ConfusionMatrixMeasure();
@@ -67,6 +88,14 @@ public class BinaryTextClassifier {
         log.info(String.format(" recall (true positives/positives): %.3f", measures[1]));
         log.info(String.format(" precision (true positives/reported positives): %.3f", measures[2]));
         return confusionMatrix;
+    }
+
+    public void saveToFile(Path file) throws IOException {
+        log.info("Saving model to file " + file);
+        if (this.sparseArraySVM == null) {
+            throw new RuntimeException("cannot save until model is trained");
+        }
+        PersistenceUtils.serialize(this.sparseArraySVM, file);
     }
 
     public static class ConfusionMatrixMeasure implements ClassificationMeasure {

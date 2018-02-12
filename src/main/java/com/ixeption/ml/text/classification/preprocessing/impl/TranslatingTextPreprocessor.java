@@ -1,6 +1,6 @@
 package com.ixeption.ml.text.classification.preprocessing.impl;
 
-import com.ixeption.ml.text.classification.TextFeature;
+import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.preprocessing.TextPreprocessor;
 
 public class TranslatingTextPreprocessor implements TextPreprocessor {

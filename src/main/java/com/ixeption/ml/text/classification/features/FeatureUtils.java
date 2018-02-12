@@ -1,7 +1,5 @@
 package com.ixeption.ml.text.classification.features;
 
-import com.ixeption.ml.text.classification.TextFeature;
-
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
