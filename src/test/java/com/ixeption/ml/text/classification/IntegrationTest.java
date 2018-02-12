@@ -1,6 +1,7 @@
 package com.ixeption.ml.text.classification;
 
 import com.ixeption.ml.text.classification.features.FeatureUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ public class IntegrationTest {
     public BinaryTextClassifier binaryTextClassifier = new BinaryTextClassifier(0.5, 0.5);
 
     @Test
+    @Disabled
     public void testSentimentAnalysis() {
         // https://www.kaggle.com/c/si650winter11/data
         Data data = new Data("data/training.txt");
