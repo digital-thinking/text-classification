@@ -1,7 +1,5 @@
 package com.ixeption.ml.text.classification;
 
-import java.util.Collections;
-
 public class TrainedBinaryTextClassifier {
 
     private final BinaryTextClassifier binaryTextClassifier;
@@ -11,7 +9,7 @@ public class TrainedBinaryTextClassifier {
     }
 
     public int predict(String text){
-        return binaryTextClassifier.predict(new TextFeature(text, Collections.emptySet(), null));
+        return binaryTextClassifier.predict(new TextFeature(text, null));
 
     }
     public int predict(TextFeature textFeature){
