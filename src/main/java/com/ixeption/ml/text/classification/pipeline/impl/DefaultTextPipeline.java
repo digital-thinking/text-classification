@@ -1,28 +1,25 @@
 package com.ixeption.ml.text.classification.pipeline.impl;
 
+import com.google.common.collect.Lists;
 import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.features.TextFeatureExtractor;
 import com.ixeption.ml.text.classification.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import com.ixeption.ml.text.classification.pipeline.TextProcessingPipeline;
 import com.ixeption.ml.text.classification.preprocessing.TextPreprocessor;
-import com.ixeption.ml.text.classification.preprocessing.impl.AnonymizingTextPreprocessor;
-import com.ixeption.ml.text.classification.preprocessing.impl.TranslatingTextPreprocessor;
 import smile.math.SparseArray;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultTextPipeline implements TextProcessingPipeline {
 
-    List<TextPreprocessor> preprocessors = new ArrayList<>();
-    TextFeatureExtractor textFeatureExtractor;
+    private final List<TextPreprocessor> preprocessors;
+    private final TextFeatureExtractor textFeatureExtractor;
 
-    public DefaultTextPipeline() {
-        preprocessors.add(new AnonymizingTextPreprocessor());
-        preprocessors.add(new TranslatingTextPreprocessor("en"));
+    public DefaultTextPipeline(TextPreprocessor... textPreprocessors) {
+        preprocessors = Lists.newArrayList(textPreprocessors);
         textFeatureExtractor = new HashTrickBagOfWordsFeatureExtractor(1337, 2, 3);
-
     }
+
 
     @Override
     public SparseArray process(TextFeature textFeature) {
