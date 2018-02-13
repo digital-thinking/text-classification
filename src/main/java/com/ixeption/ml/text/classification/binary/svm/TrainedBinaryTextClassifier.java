@@ -13,12 +13,6 @@ public class TrainedBinaryTextClassifier implements TextClassifier {
     }
 
     @Override
-    public Prediction predict(String text) {
-        return binaryTextClassifierTrainer.predict(new TextFeature(text, null));
-
-    }
-
-    @Override
     public Prediction predict(TextFeature textFeature) {
         return binaryTextClassifierTrainer.predict(textFeature);
     }

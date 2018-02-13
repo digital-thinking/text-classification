@@ -3,6 +3,7 @@ package com.ixeption.ml.text.classification;
 import com.ixeption.ml.text.classification.binary.svm.BinaryTextClassifierTrainer;
 import com.ixeption.ml.text.classification.features.FeatureUtils;
 import com.ixeption.ml.text.classification.features.TextFeature;
+import com.ixeption.ml.text.classification.pipeline.impl.DefaultTextPipeline;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ public class IntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(IntegrationTest.class);
 
-    public BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5);
+    public BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, new DefaultTextPipeline());
 
     @Test
     @Disabled

@@ -9,11 +9,11 @@ public class Prediction {
         this.label = label;
     }
 
-    int getLabel() {
+    public int getLabel() {
         return this.label;
     }
 
-    double[] getProbabilities() {
-        return this.probabilities;
+    public double[] getProbabilities() {
+        return this.probabilities.clone();
     }
 }

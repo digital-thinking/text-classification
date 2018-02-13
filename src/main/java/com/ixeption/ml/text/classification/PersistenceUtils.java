@@ -19,6 +19,7 @@ public final class PersistenceUtils {
      * @param fileName the target file
      * @return the SVM or null
      */
+    @SuppressWarnings("unchecked")
     public static SVM<SparseArray> deserialize(Path fileName) throws IOException, ClassNotFoundException {
         SVM<SparseArray> obj = null;
         FileInputStream fis = new FileInputStream(fileName.toFile());

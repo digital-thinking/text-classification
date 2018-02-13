@@ -30,22 +30,14 @@ public class BinaryTextClassifierTrainer {
      *
      * @param softmarginPenaltyPositive the soft margin penalty parameter for positive instances.
      * @param softmarginPenaltyNegative the soft margin penalty parameter for negative instances.
-     *                                  <p>
-     *                                  Note that penalties are not used when loading a model from file
+     * @param textProcessingPipeline    the pre processing {@link TextProcessingPipeline}
      */
-    public BinaryTextClassifierTrainer(double softmarginPenaltyPositive, double softmarginPenaltyNegative) {
-        textProcessingPipeline = new DefaultTextPipeline();
+    public BinaryTextClassifierTrainer(double softmarginPenaltyPositive, double softmarginPenaltyNegative, TextProcessingPipeline textProcessingPipeline) {
+        this.textProcessingPipeline = textProcessingPipeline;
         this.softmarginPenaltyNegative = softmarginPenaltyNegative;
         this.softmarginPenaltyPositive = softmarginPenaltyPositive;
 
     }
-
-    public TrainedBinaryTextClassifier readFromFile(Path file) throws IOException, ClassNotFoundException {
-        log.info("Reading model from file " + file);
-        this.sparseArraySVM = PersistenceUtils.deserialize(file);
-        return new TrainedBinaryTextClassifier(this);
-    }
-
 
     public TrainedBinaryTextClassifier train(TextFeature[] features, int[] labels) {
         SparseArray[] sparseArrays = Arrays.stream(features)//
