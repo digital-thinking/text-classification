@@ -1,96 +1,53 @@
 package com.ixeption.ml.text.classification.features.impl;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
+import com.google.common.base.Joiner;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.ixeption.ml.text.classification.features.FeatureUtils;
-import com.ixeption.ml.text.classification.features.TextFeatureExtractor;
-import org.apache.commons.lang3.StringUtils;
-import smile.math.SparseArray;
-import smile.nlp.dictionary.EnglishStopWords;
-import smile.nlp.dictionary.StopWords;
-import smile.nlp.normalizer.Normalizer;
-import smile.nlp.normalizer.SimpleNormalizer;
-import smile.nlp.stemmer.PorterStemmer;
-import smile.nlp.stemmer.Stemmer;
-import smile.nlp.tokenizer.BreakIteratorTokenizer;
-import smile.nlp.tokenizer.Tokenizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collection;
 
-public class HashTrickBagOfWordsFeatureExtractor implements TextFeatureExtractor, Serializable {
+public class HashTrickBagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtractor {
 
-    private final Stemmer _stemmer = new PorterStemmer();
-    private final Tokenizer _tokenizer = new BreakIteratorTokenizer();
-    private final StopWords _stopWords = EnglishStopWords.DEFAULT;
-    private final Normalizer _normalizer = SimpleNormalizer.getInstance();
-    private BiMap<Integer, String> _indexToName = Maps.synchronizedBiMap(HashBiMap.create());
+
+    private static final Logger log = LoggerFactory.getLogger(HashTrickBagOfWordsFeatureExtractor.class);
+
     private final int seed;
-    private final int nGrams;
-    private final int tokenMinLength;
+    private Multimap<Integer, String> _indexToName = HashMultimap.create(100000, 1);
 
-    public HashTrickBagOfWordsFeatureExtractor(int seed, int nGrams, int tokenMinLength) {
+
+    public HashTrickBagOfWordsFeatureExtractor(int nGrams, int tokenMinLength, int seed) {
+        super(nGrams, tokenMinLength);
         this.seed = seed;
-        this.nGrams = nGrams;
-        this.tokenMinLength = tokenMinLength;
-
     }
 
+
     @Override
-    public SparseArray extract(String input) {
-        SparseArray features = new SparseArray();
-
-        String[] tokens = {};
-        String normalized = _normalizer != null ? _normalizer.normalize(input) : input;
-        normalized = normalized.toLowerCase();
-        tokens = Arrays.//
-                stream(_tokenizer.split(normalized))//
-                .map(_stemmer::stem) //
-                .filter(StringUtils::isNotEmpty) // filter empty strings
-                .filter(s -> s.length() >= this.tokenMinLength) // filter short
-                .filter(s -> !_stopWords.contains(s))// stop words
-                .filter(s -> !StringUtils.isNumeric(s))// filter numbers
-                .filter(s -> {
-                    Character.UnicodeScript script = Character.UnicodeScript.of(s.codePointAt(0));
-                    return script.equals(Character.UnicodeScript.COMMON) || script.equals(Character.UnicodeScript.LATIN);
-                })// latin
-                .toArray(String[]::new);
-
-        for (String token : tokens) {
-            int index = FeatureUtils.hash32(token.getBytes(), token.length(), seed);
-            features.set(index, 1.0f);
-            _indexToName.put(index, token);
-        }
-
-        // n-gram
-        int n = nGrams;
-        for (int k = 0; k < (tokens.length - n + 1); k++) {
-            String ngram = "";
-            int end = k + n;
-            for (int j = k; j < end; j++) {
-                if (ngram.isEmpty()) {
-                    ngram = tokens[j];
-                } else {
-                    ngram = ngram + " " + tokens[j];
-                }
+    protected int getIndexInternal(String s) {
+        int index = FeatureUtils.hash32(s.getBytes(), s.length(), seed);
+        if (_indexToName.containsKey(index)) {
+            Collection<String> existing = _indexToName.get(index);
+            if (!existing.contains(s)) {
+                log.warn("Hash collision: " + index + " s1:  " + s + " s2: " + existing);
+                existing.add(s);
             }
-            //Add n-gram to a list
-            int index = FeatureUtils.hash32(ngram.getBytes(), ngram.length(), seed);
-            _indexToName.put(index, ngram);
-            features.set(index, 1.0f);
+        } else {
+            _indexToName.put(index, s);
         }
 
-        return features;
+        return index;
     }
 
     @Override
-    public int getIndex(String s) {
-        return _indexToName.inverse().get(s);
+    protected String getTokenInternal(int index) throws IndexerException {
+        if (_indexToName.containsKey(index)) {
+            return Joiner.on(',').join(_indexToName.get(index));
+
+        }
+        throw new IndexerException("Invalid index " + index);
     }
 
-    @Override
-    public String getToken(int index) {
-        return _indexToName.get(index);
-    }
+
 }

@@ -43,13 +43,22 @@ class AnonymizingTextPreprocessorTest {
         assertThat(stringWasReplaced("+1 415-970-2022", PATTERN_IBAN.placeHolder)).isFalse();
         assertThat(stringWasReplaced("0176 5484685", PATTERN_IBAN.placeHolder)).isFalse();
 
+        assertThat(stringWasReplaced("MP35 Support Team zu ", PATTERN_IBAN.placeHolder)).isFalse();
+        assertThat(stringWasReplaced("for 25 years and every day we", PATTERN_IBAN.placeHolder)).isFalse();
+
+
     }
 
     @Test
     public void testPhone() {
-        assertThat(stringWasReplaced("+49 721 96693-0", PATTERN_LONG_NUMBER.placeHolder)).isTrue();
-        assertThat(stringWasReplaced("+1 415-970-2022", PATTERN_LONG_NUMBER.placeHolder)).isTrue();
-        assertThat(stringWasReplaced("0176 5484685", PATTERN_LONG_NUMBER.placeHolder)).isTrue();
+        assertThat(stringWasReplaced("+49 721 96693-0", PATTERN_PHONE.placeHolder)).isTrue();
+        assertThat(stringWasReplaced("+1 415-970-2022", PATTERN_PHONE.placeHolder)).isTrue();
+        assertThat(stringWasReplaced("0176 5484685", PATTERN_PHONE.placeHolder)).isTrue();
+
+        assertThat(stringWasReplaced("t: +31 (0)11230 14 14", PATTERN_PHONE.placeHolder)).isTrue();
+        assertThat(stringWasReplaced("© 1999-2017 PayPal", PATTERN_PHONE.placeHolder)).isFalse();
+
+
 
     }
 
@@ -57,6 +66,8 @@ class AnonymizingTextPreprocessorTest {
     public void testUrl() {
         assertThat(stringWasReplaced("http://www.my-url.com?abc=22345", PATTERN_URL.placeHolder)).isTrue();
         assertThat(stringWasReplaced("www.mydomain.co.uk/path", PATTERN_URL.placeHolder)).isTrue();
+        assertThat(stringWasReplaced("www.facebook.com/abc.de", PATTERN_URL.placeHolder)).isTrue();
+
     }
 
     @Test
@@ -64,7 +75,7 @@ class AnonymizingTextPreprocessorTest {
         String preprocess = cut.preprocess(new TextFeature("Please visit www.mypage.com, write me an email support@mypage.com or call me +43 721 466 448 and send the money to QA58 DOHB 0000 1234 5678 90AB CDEF G. "));
         assertThat(preprocess).contains(PATTERN_IBAN.placeHolder);
         assertThat(preprocess).contains(PATTERN_EMAIL.placeHolder);
-        assertThat(preprocess).contains(PATTERN_LONG_NUMBER.placeHolder);
+        assertThat(preprocess).contains(PATTERN_PHONE.placeHolder);
         assertThat(preprocess).contains(PATTERN_URL.placeHolder);
 
         assertThat(preprocess).doesNotContain("www.mypage.com");

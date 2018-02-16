@@ -4,6 +4,7 @@ import com.ixeption.ml.text.classification.binary.svm.BinaryTextClassifierTraine
 import com.ixeption.ml.text.classification.binary.svm.DeserializedSVMTextClassifier;
 import com.ixeption.ml.text.classification.binary.svm.TrainedBinaryTextClassifier;
 import com.ixeption.ml.text.classification.features.TextFeature;
+import com.ixeption.ml.text.classification.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import com.ixeption.ml.text.classification.pipeline.impl.DefaultTextPipeline;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,8 @@ class BinaryTextClassifierTrainerTest {
         TextFeature textFeatureB = new TextFeature("class_b");
         testFeatures = new TextFeature[]{textFeatureA, textFeatureB};
         testLabels = new int[]{0, 1};
-        binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, new DefaultTextPipeline());
+        binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5,
+                new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337, 2, 2)));
     }
 
     @Test
@@ -45,7 +47,8 @@ class BinaryTextClassifierTrainerTest {
         binaryTextClassifierTrainer.saveToFile(path);
 
 
-        TextClassifier persisted = new DeserializedSVMTextClassifier(new DefaultTextPipeline(), path);
+        TextClassifier persisted = new DeserializedSVMTextClassifier(new DefaultTextPipeline(
+                new HashTrickBagOfWordsFeatureExtractor(1337, 2, 2)), path);
         assertThat(persisted.predict(testFeatures[0]).getLabel()).isEqualTo(0);
         assertThat(persisted.predict(testFeatures[1]).getLabel()).isEqualTo(1);
 
