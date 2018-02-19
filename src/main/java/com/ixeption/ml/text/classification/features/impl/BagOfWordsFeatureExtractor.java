@@ -22,7 +22,7 @@ public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtract
     private void buildCorpus(Set<String> corpus) {
         int currentIndex = 0;
         for (String next : corpus) {
-            for (String s : getTokens(next)) {
+            for (String s : extractTokens(next)) {
                 if (!_indexToName.containsValue(s)) {
                     _indexToName.put(currentIndex++, s);
                 }

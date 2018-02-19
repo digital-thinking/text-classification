@@ -22,8 +22,8 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureExtractor, Serializable {
 
+    public static final String TOKEN_SEPERATOR = " ";
     private static final Logger log = LoggerFactory.getLogger(AbstractBagOfWordsFeatureExtractor.class);
-
     private final Stemmer _stemmer = new PorterStemmer();
     private final Tokenizer _tokenizer = new BreakIteratorTokenizer();
     private final StopWords _stopWords = EnglishStopWords.GOOGLE;
@@ -42,11 +42,11 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
     @Override
     public SparseArray extract(String input) {
         SparseArray features = new SparseArray();
-        String[] tokens = getTokens(input);
+        String[] tokens = extractTokens(input);
 
         for (String token : tokens) {
             try {
-                features.set(getIndex(token), 1.0f);
+                features.set(getIndexInternal(token), 1.0f);
             } catch (IndexerException e) {
                 log.warn("Ignored non indexed word :" + token, e);
             }
@@ -55,8 +55,7 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
         return features;
     }
 
-    public String[] getTokens(String input) {
-
+    public String[] extractTokens(String input) {
         String normalized = _normalizer != null ? _normalizer.normalize(input) : input;
         normalized = normalized.toLowerCase();
         List<String> tokens = Arrays.//
@@ -65,7 +64,7 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
                 .filter(StringUtils::isNotEmpty) // filter empty strings
                 .filter(s -> s.length() >= this.tokenMinLength) // filter short
                 .filter(s -> !_stopWords.contains(s))// stop words
-                .filter(s -> !StringUtils.isNumeric(s))// filter numbers
+                .filter(s -> !StringUtils.isNumeric(s))// filter numbers //TODO map to PlaceHolder
                 .filter(s -> {
                     Character.UnicodeScript script = Character.UnicodeScript.of(s.codePointAt(0));
                     return script.equals(Character.UnicodeScript.COMMON) || script.equals(Character.UnicodeScript.LATIN);
@@ -82,7 +81,7 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
                 if (ngram.isEmpty()) {
                     ngram = tokens.get(j);
                 } else {
-                    ngram = ngram + " " + tokens.get(j);
+                    ngram = ngram + TOKEN_SEPERATOR + tokens.get(j);
                 }
             }
             tokens.add(ngram);
@@ -98,14 +97,17 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
 
     protected abstract String getTokenInternal(int index) throws IndexerException;
 
+    /**
+     * Be aware, that this method does not preprocess your input.
+     * This means that the token you want to lookup should preprocessed by {@link AbstractBagOfWordsFeatureExtractor#extractTokens(String)}
+     *
+     * @param s the token
+     * @return the index of the token
+     * @throws IndexerException if the token is not indexed
+     */
     @Override
     public int getIndex(String s) throws IndexerException {
-        String[] tokens = getTokens(s);
-        if (tokens.length == 1) {
-            return getIndexInternal(tokens[0]);
-        }
-        throw new IndexerException("Invalid token " + s);
-
+        return getIndexInternal(s);
     }
 
     protected abstract int getIndexInternal(String token) throws IndexerException;

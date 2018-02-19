@@ -5,7 +5,7 @@ import com.ixeption.ml.text.classification.features.FeatureUtils;
 import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import com.ixeption.ml.text.classification.pipeline.impl.DefaultTextPipeline;
-import org.junit.jupiter.api.Disabled;
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +16,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+//@Disabled
 public class IntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(IntegrationTest.class);
 
     public BinaryTextClassifierTrainer binaryTextClassifierTrainer =
             new BinaryTextClassifierTrainer(0.5, 0.5,
-                    new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337, 2, 2)));
+                    new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(3, 3, 1337)));
 
     @Test
-    @Disabled
     public void testSentimentAnalysis() {
         // https://www.kaggle.com/c/si650winter11/data
         Data data = new Data("data/training.txt");
@@ -57,7 +59,9 @@ public class IntegrationTest {
 
         }
 
-        log.info("Accuracy: " + correct / (double) testY.length);
+        double accurancy = correct / (double) testY.length;
+        log.info("Accuracy: " + accurancy);
+        assertThat(accurancy).isCloseTo(0.99, Percentage.withPercentage(5));
 
 
     }

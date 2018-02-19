@@ -4,9 +4,7 @@ import com.ixeption.ml.text.classification.features.WordIndexing;
 import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import smile.math.SparseArray;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +31,9 @@ public class BagOfWordsFeatureExtractorTest {
 
     @Test
     public void testIndexExists() throws WordIndexing.IndexerException {
-        assertThat(bagOfWordsFeatureExtractor.getIndex("Hello")).isEqualTo(0);
-        assertThat(bagOfWordsFeatureExtractor.getIndex("Fried")).isEqualTo(73);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("hello")[0])).isEqualTo(0);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("fried")[0])).isEqualTo(73);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("kid funky")[2])).isEqualTo(75);
     }
 
     @Test(expected = WordIndexing.IndexerException.class)
@@ -43,19 +42,9 @@ public class BagOfWordsFeatureExtractorTest {
 
     }
 
-    @Test
-    public void testBagOfWords() throws WordIndexing.IndexerException {
-        String s = "Known my buggin Fifth grade";
-        SparseArray extract = bagOfWordsFeatureExtractor.extract(s);
-        String[] tokens = Arrays.stream(s.split(" ")).filter(s1 -> s1.length() >= MIN_LENGHT).toArray(String[]::new);
-
-        int i = 0;
-        for (String token : tokens) {
-            int index = bagOfWordsFeatureExtractor.getIndex(token);
-            assertThat(extract.get(index)).isEqualTo(1.0);
-            assertThat(bagOfWordsFeatureExtractor.getToken(index).equalsIgnoreCase(token));
-
-        }
+    @Test(expected = WordIndexing.IndexerException.class)
+    public void testIndexNotNGramExists() throws WordIndexing.IndexerException {
+        assertThat(bagOfWordsFeatureExtractor.getIndex("as 'Kid")).isEqualTo(0);
 
     }
 
