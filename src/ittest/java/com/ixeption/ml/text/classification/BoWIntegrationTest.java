@@ -3,37 +3,39 @@ package com.ixeption.ml.text.classification;
 import com.ixeption.ml.text.classification.binary.svm.BinaryTextClassifierTrainer;
 import com.ixeption.ml.text.classification.features.FeatureUtils;
 import com.ixeption.ml.text.classification.features.TextFeature;
-import com.ixeption.ml.text.classification.features.impl.HashTrickBagOfWordsFeatureExtractor;
+import com.ixeption.ml.text.classification.features.impl.BagOfWordsFeatureExtractor;
 import com.ixeption.ml.text.classification.pipeline.impl.DefaultTextPipeline;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@Disabled
-public class IntegrationTest {
+public class BoWIntegrationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(IntegrationTest.class);
-
-    public BinaryTextClassifierTrainer binaryTextClassifierTrainer =
-            new BinaryTextClassifierTrainer(0.5, 0.5,
-                    new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(3, 3, 1337)));
+    private static final Logger log = LoggerFactory.getLogger(BoWIntegrationTest.class);
 
     @Test
     public void testSentimentAnalysis() {
         // https://www.kaggle.com/c/si650winter11/data
-        Data data = new Data("data/training.txt");
+        TrainingData data = new TrainingData("data/training.txt");
         ArrayList<TextFeature> textFeatures = data.getTextFeatures();
         ArrayList<Integer> labels = data.getLabels();
         FeatureUtils.shuffle(textFeatures, labels);
+
+        Set<String> corpus = textFeatures.stream().map(TextFeature::getText).collect(Collectors.toSet());
+
+        BinaryTextClassifierTrainer binaryTextClassifierTrainer =
+                new BinaryTextClassifierTrainer(0.5, 0.5,
+                        new DefaultTextPipeline(
+                                new BagOfWordsFeatureExtractor(3, 3, corpus)));
+
 
         // cross validate
         BinaryTextClassifierTrainer.ConfusionMatrixMeasure confusionMatrixMeasure = binaryTextClassifierTrainer.crossValidate(textFeatures.toArray(new TextFeature[0]), labels.stream().mapToInt(Integer::intValue).toArray());
@@ -62,43 +64,7 @@ public class IntegrationTest {
         double accurancy = correct / (double) testY.length;
         log.info("Accuracy: " + accurancy);
         assertThat(accurancy).isCloseTo(0.99, Percentage.withPercentage(5));
-
-
     }
 
-    private class Data {
-        private ArrayList<TextFeature> textFeatures;
-        private ArrayList<Integer> labels;
 
-        Data(String file) {
-            read(file);
-        }
-
-        ArrayList<TextFeature> getTextFeatures() {
-            return textFeatures;
-        }
-
-        ArrayList<Integer> getLabels() {
-            return labels;
-        }
-
-        void read(String file) {
-            String line = "";
-            String cvsSplitBy = "\t";
-            textFeatures = new ArrayList<>();
-            labels = new ArrayList<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                while ((line = br.readLine()) != null) {
-                    // use comma as separator
-                    String[] labelText = line.split(cvsSplitBy);
-                    TextFeature textFeature = new TextFeature(labelText[1]);
-                    textFeatures.add(textFeature);
-                    labels.add(Integer.parseInt(labelText[0]));
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

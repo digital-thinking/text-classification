@@ -29,31 +29,38 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
     private final StopWords _stopWords = EnglishStopWords.GOOGLE;
     private final Normalizer _normalizer = SimpleNormalizer.getInstance();
 
-    private final int nGrams;
+    private final int nGramsCount;
     private final int tokenMinLength;
 
 
-    public AbstractBagOfWordsFeatureExtractor(int nGrams, int tokenMinLength) {
-        this.nGrams = nGrams;
+    public AbstractBagOfWordsFeatureExtractor(int nGramsCount, int tokenMinLength) {
+        this.nGramsCount = nGramsCount;
         this.tokenMinLength = tokenMinLength;
 
     }
 
     @Override
-    public SparseArray extract(String input) {
-        SparseArray features = new SparseArray();
+    public final SparseArray extract(String input) {
         String[] tokens = extractTokens(input);
+        SparseArray features = transform(tokens);
+        return scale(features);
+    }
 
+    protected SparseArray transform(String[] tokens) {
+        SparseArray features = new SparseArray();
         for (String token : tokens) {
             try {
-                features.set(getIndexInternal(token), 1.0f);
+                int index = getIndexInternal(token);
+                features.set(index, 1.0f);
             } catch (IndexerException e) {
                 log.warn("Ignored non indexed word :" + token, e);
             }
         }
-
         return features;
+
     }
+
+    protected abstract SparseArray scale(SparseArray features);
 
     public String[] extractTokens(String input) {
         String normalized = _normalizer != null ? _normalizer.normalize(input) : input;
@@ -71,10 +78,16 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
                 })// latin
                 .collect(toList());
 
+        addNGrams(tokens);
+        return tokens.toArray(new String[0]);
+    }
+
+    protected void addNGrams(List<String> tokens) {
+        if (getnGramsCount() == 0) return;
         // n-gram
-        int n = nGrams;
-        int tokenSize = tokens.size();
-        for (int k = 0; k < (tokenSize - n + 1); k++) {
+        int n = getnGramsCount();
+        int counts = tokens.size() - n + 1;
+        for (int k = 0; k < counts; k++) {
             String ngram = "";
             int end = k + n;
             for (int j = k; j < end; j++) {
@@ -86,8 +99,6 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
             }
             tokens.add(ngram);
         }
-
-        return tokens.toArray(new String[0]);
     }
 
     @Override
@@ -111,5 +122,9 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
     }
 
     protected abstract int getIndexInternal(String token) throws IndexerException;
+
+    public int getnGramsCount() {
+        return nGramsCount;
+    }
 
 }
