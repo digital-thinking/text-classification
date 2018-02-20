@@ -4,6 +4,8 @@ import com.ixeption.ml.text.classification.features.TextFeature;
 import com.ixeption.ml.text.classification.features.WordIndexing;
 import smile.math.SparseArray;
 
-public interface TextProcessingPipeline extends WordIndexing{
+import java.io.Serializable;
+
+public interface TextProcessingPipeline extends WordIndexing, Serializable {
     SparseArray process(TextFeature textFeature);
 }

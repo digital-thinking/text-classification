@@ -11,6 +11,11 @@ import smile.math.SparseArray;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * This is a representation of a deserialized binary SVM model
+ * Be aware, that no checks are executed to make sure the loaded model fits to the attached processing pipeline
+ * In case of using a dictionary, make sure to make in available in the pipeline
+ */
 public class DeserializedSVMTextClassifier implements TextClassifier {
 
     private final TextProcessingPipeline textProcessingPipeline;

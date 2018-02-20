@@ -39,4 +39,6 @@ public class DefaultTextPipeline implements TextProcessingPipeline {
     public String getToken(int index) throws IndexerException {
         return textFeatureExtractor.getToken(index);
     }
+
+
 }

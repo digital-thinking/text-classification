@@ -14,13 +14,12 @@ import smile.nlp.stemmer.Stemmer;
 import smile.nlp.tokenizer.BreakIteratorTokenizer;
 import smile.nlp.tokenizer.Tokenizer;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureExtractor, Serializable {
+public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureExtractor {
 
     public static final String TOKEN_SEPERATOR = " ";
     private static final Logger log = LoggerFactory.getLogger(AbstractBagOfWordsFeatureExtractor.class);
@@ -101,6 +100,7 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
         }
     }
 
+
     @Override
     public String getToken(int index) throws IndexerException {
         return getTokenInternal(index);
@@ -108,14 +108,7 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
 
     protected abstract String getTokenInternal(int index) throws IndexerException;
 
-    /**
-     * Be aware, that this method does not preprocess your input.
-     * This means that the token you want to lookup should preprocessed by {@link AbstractBagOfWordsFeatureExtractor#extractTokens(String)}
-     *
-     * @param s the token
-     * @return the index of the token
-     * @throws IndexerException if the token is not indexed
-     */
+
     @Override
     public int getIndex(String s) throws IndexerException {
         return getIndexInternal(s);

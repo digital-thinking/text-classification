@@ -1,28 +1,55 @@
 package com.ixeption.ml.text.classification.features.impl;
 
+import com.ixeption.ml.text.classification.PersistenceUtils;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smile.math.SparseArray;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtractor {
+import static java.util.stream.Collectors.toMap;
+
+public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtractor implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(BagOfWordsFeatureExtractor.class);
 
-    private final Map<Integer, String> _indexToName = new HashMap<>(1000);
-    private final Map<String, Integer> _nameToIndex = new HashMap<>(1000);
-
-    private final TIntDoubleMap _idfMap = new TIntDoubleHashMap(1000);
+    private Map<Integer, String> _indexToName = new HashMap<>(1000);
+    private Map<String, Integer> _nameToIndex = new HashMap<>(1000);
+    private TIntDoubleMap _idfMap = new TIntDoubleHashMap(1000);
 
 
     public BagOfWordsFeatureExtractor(int nGrams, int tokenMinLength, Set<String> corpus) {
         super(nGrams, tokenMinLength);
         buildCorpus(corpus);
+    }
+
+    private BagOfWordsFeatureExtractor(int nGrams, int tokenMinLength) {
+        super(nGrams, tokenMinLength);
+    }
+
+    public static BagOfWordsFeatureExtractor deserialize(int nGrams, int tokenMinWidth, Path dictionary) throws IOException, ClassNotFoundException {
+        ArrayList<Object> data = PersistenceUtils.deserialize(dictionary);
+        BagOfWordsFeatureExtractor extractor = new BagOfWordsFeatureExtractor(nGrams, tokenMinWidth);
+        extractor._indexToName = (Map<Integer, String>) data.get(0);
+        extractor._nameToIndex = extractor._indexToName.entrySet().stream().collect(toMap(Map.Entry::getValue, Map.Entry::getKey));
+        extractor._idfMap = (TIntDoubleMap) data.get(1);
+        return extractor;
+    }
+
+    public void serialize(Path path) throws IOException {
+        ArrayList<Object> data = new ArrayList<>(2);
+        data.add(_indexToName);
+        data.add(_idfMap);
+        PersistenceUtils.serialize(data, path);
+
     }
 
     private void buildCorpus(Set<String> corpus) {
@@ -87,6 +114,5 @@ public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtract
     public int getDictSize() {
         return this._indexToName.size();
     }
-
 
 }

@@ -37,4 +37,10 @@ public class HashTrickBagOfWordsFeatureExtractorTest {
         assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("kid funky")[2])).isEqualTo(664005995);
     }
 
+    @Test
+    public void testCollision() throws WordIndexing.IndexerException {
+        assertThat(bagOfWordsFeatureExtractor.getIndex("disponibilité")).isEqualTo(bagOfWordsFeatureExtractor.getIndex("disponibilità"));
+        System.out.println(bagOfWordsFeatureExtractor.getToken(-616469338));
+    }
+
 }
