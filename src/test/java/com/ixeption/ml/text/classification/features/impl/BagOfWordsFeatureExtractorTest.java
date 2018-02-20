@@ -5,8 +5,13 @@ import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.function.Function;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BagOfWordsFeatureExtractorTest {
@@ -33,7 +38,7 @@ public class BagOfWordsFeatureExtractorTest {
     @Test
     public void testIndexExists() throws WordIndexing.IndexerException {
         assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("hello")[0])).isEqualTo(0);
-        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("fried")[0])).isEqualTo(78);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("fried")[0])).isEqualTo(73);
         assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("kid funky")[2])).isEqualTo(80);
     }
 
@@ -42,7 +47,9 @@ public class BagOfWordsFeatureExtractorTest {
         int ngrams = bagOfWordsFeatureExtractor.getnGramsCount();
         BagOfWordsFeatureExtractor noNGram = new BagOfWordsFeatureExtractor(0, MIN_LENGHT, corpus);
         int expectedTokens = corpus.stream().map(noNGram::extractTokens).mapToInt(value -> value.length).map(count -> count + (count - ngrams + 1)).sum();
-        assertThat(bagOfWordsFeatureExtractor.getDictSize()).isEqualTo(expectedTokens);
+        Map<String, Long> counts = corpus.stream().map(noNGram::extractTokens).flatMap(Arrays::stream).collect(groupingBy(Function.identity(), counting()));
+        int multiOccurrences = counts.entrySet().stream().mapToInt(value -> (int) (value.getValue() - 1L)).sum();
+        assertThat(bagOfWordsFeatureExtractor.getDictSize()).isEqualTo(expectedTokens - multiOccurrences);
     }
 
     @Test(expected = WordIndexing.IndexerException.class)

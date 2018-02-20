@@ -40,7 +40,7 @@ public class AbstractBagOfWordsFeatureExtractorTest {
 
     @Test
     public void testBagOfWords() throws WordIndexing.IndexerException {
-        String s = "Known my buggin Fifth grade";
+        String s = "known my buggin fifth grade";
         SparseArray extract = cut.extract(s);
         String[] tokens = Arrays.stream(s.split(" ")).filter(s1 -> s1.length() >= MIN_LENGTH).toArray(String[]::new);
 
@@ -50,6 +50,7 @@ public class AbstractBagOfWordsFeatureExtractorTest {
             assertThat(extract.get(index)).isEqualTo(1.0);
             assertThat(cut.getToken(index).equalsIgnoreCase(token));
         }
+
 
     }
 

@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BoWIntegrationTest {
+public class TFIDFBagOfWordsIT {
 
-    private static final Logger log = LoggerFactory.getLogger(BoWIntegrationTest.class);
+    private static final Logger log = LoggerFactory.getLogger(TFIDFBagOfWordsIT.class);
 
     @Test
     public void testSentimentAnalysis() {

@@ -87,6 +87,47 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>add-it-resources</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/it-classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/integration-test/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.20.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <testSourceDirectory>src/integration-test/java</testSourceDirectory>
+                    <testClassesDirectory>${project.build.directory}/it-classes</testClassesDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>
                 <configuration>
@@ -97,13 +138,7 @@
                         <include>**/*TestCase.java</include>
                     </includes>
                     <properties>
-                        <!-- <includeTags>fast</includeTags> -->
                         <excludeTags>slow</excludeTags>
-                        <!--
-                        <configurationParameters>
-                            junit.jupiter.conditions.deactivate = *
-                        </configurationParameters>
-                        -->
                     </properties>
                 </configuration>
                 <dependencies>

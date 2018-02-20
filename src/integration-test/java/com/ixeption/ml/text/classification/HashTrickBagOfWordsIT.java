@@ -16,9 +16,9 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class HashTrickBoWIntegrationTest {
+public class HashTrickBagOfWordsIT {
 
-    private static final Logger log = LoggerFactory.getLogger(HashTrickBoWIntegrationTest.class);
+    private static final Logger log = LoggerFactory.getLogger(HashTrickBagOfWordsIT.class);
 
     public BinaryTextClassifierTrainer binaryTextClassifierTrainer =
             new BinaryTextClassifierTrainer(0.5, 0.5,
