@@ -16,8 +16,8 @@
         <java.version>1.8</java.version>
         <smile.version>1.5.0</smile.version>
         <junit.version>4.12</junit.version>
-        <junit.jupiter.version>5.0.3</junit.jupiter.version>
-        <junit.platform.version>1.0.3</junit.platform.version>
+        <junit.jupiter.version>5.1.0</junit.jupiter.version>
+        <junit.platform.version>1.1.0</junit.platform.version>
     </properties>
     <dependencies>
         <!-- ml library -->
@@ -25,6 +25,12 @@
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-nlp</artifactId>
             <version>${smile.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -87,44 +93,49 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
                 <executions>
                     <execution>
-                        <id>add-it-resources</id>
-                        <phase>pre-integration-test</phase>
+                        <id>add-test-source</id>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>add-test-source</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/it-classes</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/integration-test/resources</directory>
-                                </resource>
-                            </resources>
+                            <sources>
+                                <source>src/integration-test/java</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20.1</version>
+                <version>2.19.1</version>
                 <executions>
                     <execution>
+                        <id>integration-test</id>
                         <goals>
                             <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
                             <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <testSourceDirectory>src/integration-test/java</testSourceDirectory>
-                    <testClassesDirectory>${project.build.directory}/it-classes</testClassesDirectory>
-                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>${junit.platform.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
