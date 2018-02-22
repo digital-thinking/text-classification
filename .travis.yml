@@ -5,7 +5,7 @@ dist: trusty
 
 addons:
   sonarcloud:
-    organization: "ixeption"
+    organization: "digital-thinking"
 
 jdk:
   - oraclejdk8

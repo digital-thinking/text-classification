@@ -1,8 +1,0 @@
-package com.ixeption.ml.text.classification.features;
-
-import smile.math.SparseArray;
-
-public interface TextFeatureExtractor extends WordIndexing {
-    SparseArray extract(String input);
-
-}
