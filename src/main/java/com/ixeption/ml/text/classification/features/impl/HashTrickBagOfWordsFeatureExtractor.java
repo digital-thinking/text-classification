@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smile.math.SparseArray;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public class HashTrickBagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtractor {
@@ -27,6 +28,7 @@ public class HashTrickBagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatu
 
     @Override
     protected int getIndexInternal(String s) {
+        System.out.println(new String(s.getBytes(), StandardCharsets.UTF_8));
         int index = FeatureUtils.hash32(s.getBytes(), s.length(), seed);
         if (_indexToName.containsKey(index)) {
             Collection<String> existing = _indexToName.get(index);

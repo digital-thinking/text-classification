@@ -20,7 +20,7 @@ class DefaultTextPipelineTest {
 
     @Test
     void testFeatureIndex() throws WordIndexing.IndexerException {
-        DefaultTextPipeline cut = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(N_GRAMS, 2, 2));
+        DefaultTextPipeline cut = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(N_GRAMS, 2, 1337));
         cut.process(new TextFeature("Hallo this is a test"));
         int index = cut.getIndex("hallo");
         assertThat(cut.getToken(index)).isEqualTo("hallo");

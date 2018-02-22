@@ -1,31 +1,25 @@
 package com.ixeption.ml.text.classification.features.impl;
 
-import com.google.common.collect.Lists;
 import com.ixeption.ml.text.classification.features.WordIndexing;
 import org.assertj.core.util.Sets;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import smile.math.SparseArray;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(value = Parameterized.class)
+
 public class AbstractBagOfWordsFeatureExtractorTest {
 
 
     private static final int N_GRAMS = 2;
     private static final int MIN_LENGTH = 3;
-    @Parameterized.Parameter
-    public AbstractBagOfWordsFeatureExtractor cut;
 
-    @Parameters(name = "{index}: Impl Class: {0}")
-    public static Collection<AbstractBagOfWordsFeatureExtractor> impls() {
+    public static Stream<AbstractBagOfWordsFeatureExtractor> getImplementations() {
         Set<String> corpus = Sets.newLinkedHashSet();
         corpus.add("Hello, my name is Jimmy Pop");
         corpus.add("And I'm a dumb white guy");
@@ -35,11 +29,13 @@ public class AbstractBagOfWordsFeatureExtractorTest {
         corpus.add("Be buggin' give props to my ho 'cause she fly");
         corpus.add("But I can take the heat 'cause I'm the other white meat");
         corpus.add("Known as 'Kid Funky Fried'");
-        return Lists.newArrayList(new BagOfWordsFeatureExtractor(N_GRAMS, MIN_LENGTH, corpus), new HashTrickBagOfWordsFeatureExtractor(N_GRAMS, MIN_LENGTH, 1337));
+        return Stream.of(new BagOfWordsFeatureExtractor(N_GRAMS, MIN_LENGTH, corpus), new HashTrickBagOfWordsFeatureExtractor(N_GRAMS, MIN_LENGTH, 1337));
     }
 
-    @Test
-    public void testBagOfWords() throws WordIndexing.IndexerException {
+
+    @ParameterizedTest(name = "{index}: Impl Class: {0}")
+    @MethodSource("getImplementations")
+    public void testBagOfWords(AbstractBagOfWordsFeatureExtractor cut) throws WordIndexing.IndexerException {
         String s = "known my buggin fifth grade";
         SparseArray extract = cut.extract(s);
         String[] tokens = Arrays.stream(s.split(" ")).filter(s1 -> s1.length() >= MIN_LENGTH).toArray(String[]::new);

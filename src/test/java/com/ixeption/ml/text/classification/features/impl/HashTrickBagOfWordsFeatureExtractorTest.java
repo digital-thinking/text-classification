@@ -2,8 +2,8 @@ package com.ixeption.ml.text.classification.features.impl;
 
 import com.ixeption.ml.text.classification.features.WordIndexing;
 import org.assertj.core.util.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -11,11 +11,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashTrickBagOfWordsFeatureExtractorTest {
 
-    public static final int MIN_LENGHT = 3;
-    HashTrickBagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
+    public static final int MIN_LENGTH = 3;
+    static HashTrickBagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         Set<String> corpus = Sets.newLinkedHashSet();
         corpus.add("Hello, my name is Jimmy Pop");
         corpus.add("And I'm a dumb white guy");
@@ -26,7 +26,7 @@ public class HashTrickBagOfWordsFeatureExtractorTest {
         corpus.add("But I can take the heat 'cause I'm the other white meat");
         corpus.add("Known as 'Kid Funky Fried'");
 
-        bagOfWordsFeatureExtractor = new HashTrickBagOfWordsFeatureExtractor(2, MIN_LENGHT, 133);
+        bagOfWordsFeatureExtractor = new HashTrickBagOfWordsFeatureExtractor(2, MIN_LENGTH, 133);
     }
 
     @Test
