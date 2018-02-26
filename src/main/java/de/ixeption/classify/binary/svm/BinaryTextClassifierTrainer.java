@@ -12,17 +12,21 @@ import smile.math.SparseArray;
 import smile.math.kernel.SparseLinearKernel;
 import smile.validation.*;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+@NotThreadSafe
 public class BinaryTextClassifierTrainer {
 
     private static final Logger log = LoggerFactory.getLogger(BinaryTextClassifierTrainer.class);
 
-    private TextProcessingPipeline textProcessingPipeline;
-    private double softmarginPenaltyPositive;
-    private double softmarginPenaltyNegative;
+    private final TextProcessingPipeline textProcessingPipeline;
+    private final double softmarginPenaltyPositive;
+    private final double softmarginPenaltyNegative;
+    private SparseArray[] sparseArrays;
+    private int[] labels;
     private SVM<SparseArray> sparseArraySVM;
 
     /**
@@ -39,11 +43,31 @@ public class BinaryTextClassifierTrainer {
 
     }
 
+    /**
+     * train the classifier
+     *
+     * @param features the features
+     * @param labels   the labels
+     * @return a trained classifier
+     */
     public TrainedBinaryTextClassifier train(TextFeature[] features, int[] labels) {
-        SparseArray[] sparseArrays = Arrays.stream(features)//
+        sparseArrays = Arrays.stream(features)//
                 .map(this::transform)//
                 .toArray(SparseArray[]::new);
+        this.labels = labels;
+        return train();
+    }
 
+    /**
+     * train the classifier, without executing feature transformation again
+     * Can only be executed after {@link BinaryTextClassifierTrainer#crossValidate(TextFeature[], int[])} has been called
+     *
+     * @return the trained classifier
+     * @throws IllegalStateException if the method is called before cross validation was executed
+     */
+    public TrainedBinaryTextClassifier train() throws IllegalStateException {
+        if (sparseArrays == null || labels == null)
+            throw new IllegalStateException("this method can only be used, if cross Validation has been executed before");
         log.info("Starting training");
         sparseArraySVM = new SVM<>(new SparseLinearKernel(), softmarginPenaltyPositive, softmarginPenaltyNegative);
         sparseArraySVM.learn(sparseArrays, labels);
@@ -72,7 +96,8 @@ public class BinaryTextClassifierTrainer {
         SVM.Trainer<SparseArray> svmTrainer = new SVM.Trainer<>(new SparseLinearKernel(), softmarginPenaltyPositive,
                 softmarginPenaltyNegative);
         ConfusionMatrixMeasure confusionMatrix = new ConfusionMatrixMeasure();
-        SparseArray[] sparseArrays = Arrays.stream(features)//
+        this.labels = labels;
+        sparseArrays = Arrays.stream(features)//
                 .map(this::transform)//
                 .toArray(SparseArray[]::new);
         double[] measures = Validation.cv(10, svmTrainer, sparseArrays, labels,

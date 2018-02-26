@@ -1,9 +1,12 @@
 package de.ixeption.classify.features;
 
+import java.util.Set;
+
 public class TextFeature {
 
-    private final String language;
+    private String language;
     private String text;
+    private Set<String> excludes;
 
     public TextFeature(String text, String language) {
         this.text = text;
@@ -17,6 +20,7 @@ public class TextFeature {
 
     }
 
+
     public String getText() {
         return text;
     }
@@ -25,8 +29,19 @@ public class TextFeature {
         this.text = text;
     }
 
+    public Set<String> getExcludes() {
+        return excludes;
+    }
+
+    public void setExcludes(Set<String> excludes) {
+        this.excludes = excludes;
+    }
 
     public String getLanguage() {
         return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }
