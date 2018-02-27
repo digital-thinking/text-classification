@@ -1,22 +1,23 @@
 package de.ixeption.classify.features;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class TextFeature {
 
-    private String language;
+    private String possibleLocale;
     private String text;
-    private Set<String> excludes;
+    private Set<String> excludes = Collections.emptySet();
 
-    public TextFeature(String text, String language) {
+    public TextFeature(String text, String possibleLocale) {
         this.text = text;
 
-        this.language = language;
+        this.possibleLocale = possibleLocale;
     }
 
     public TextFeature(String text) {
         this.text = text;
-        this.language = null;
+        this.possibleLocale = null;
 
     }
 
@@ -37,11 +38,11 @@ public class TextFeature {
         this.excludes = excludes;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getPossibleLocale() {
+        return possibleLocale;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setPossibleLocale(String possibleLocale) {
+        this.possibleLocale = possibleLocale;
     }
 }

@@ -28,7 +28,7 @@ public class ContextBasedAnonymizingTextPreprocessor implements TextPreprocessor
     public String preprocess(TextFeature textFeature) {
         for (String ex : textFeature.getExcludes()) {
             for (String token : breakIteratorTokenizer.split(textFeature.getText())) {
-                if (token.length() >= minLength && token.length() < maxLength) {
+                if (ex != null && token.length() >= minLength && token.length() < maxLength) {
                     double distance = editDistance.d(ex, token);
                     if (distance / token.length() < 0.25) {
                         log.debug("Distance: " + token + ":" + ex + "->" + distance / token.length());
