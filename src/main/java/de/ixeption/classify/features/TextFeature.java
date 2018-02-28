@@ -1,5 +1,8 @@
 package de.ixeption.classify.features;
 
+import de.ixeption.classify.preprocessing.ContextType;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -7,7 +10,7 @@ public class TextFeature {
 
     private String possibleLocale;
     private String text;
-    private Set<String> excludes = Collections.emptySet();
+    private Set<Pair<String, ContextType>> excludes = Collections.emptySet();
 
     public TextFeature(String text, String possibleLocale) {
         this.text = text;
@@ -30,11 +33,11 @@ public class TextFeature {
         this.text = text;
     }
 
-    public Set<String> getExcludes() {
+    public Set<Pair<String, ContextType>> getExcludes() {
         return excludes;
     }
 
-    public void setExcludes(Set<String> excludes) {
+    public void setExcludes(Set<Pair<String, ContextType>> excludes) {
         this.excludes = excludes;
     }
 

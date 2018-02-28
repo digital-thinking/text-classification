@@ -1,7 +1,9 @@
 package de.ixeption.classify.preprocessing.impl;
 
 import de.ixeption.classify.features.TextFeature;
+import de.ixeption.classify.preprocessing.ContextType;
 import de.ixeption.classify.preprocessing.TextPreprocessor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smile.math.distance.EditDistance;
@@ -11,7 +13,6 @@ import java.util.Locale;
 
 public class ContextBasedAnonymizingTextPreprocessor implements TextPreprocessor {
 
-    public static final String PLACEHOLDER_PERSONAL_CONTEXT = "PLACEHOLDER_PERSONAL_CONTEXT";
     private static final Logger log = LoggerFactory.getLogger(ContextBasedAnonymizingTextPreprocessor.class);
     private final EditDistance editDistance;
     private final BreakIteratorTokenizer breakIteratorTokenizer = new BreakIteratorTokenizer(Locale.ENGLISH);
@@ -26,17 +27,18 @@ public class ContextBasedAnonymizingTextPreprocessor implements TextPreprocessor
 
     @Override
     public String preprocess(TextFeature textFeature) {
-        for (String ex : textFeature.getExcludes()) {
+        for (Pair<String, ContextType> ex : textFeature.getExcludes()) {
             for (String token : breakIteratorTokenizer.split(textFeature.getText())) {
                 if (ex != null && token.length() >= minLength && token.length() < maxLength) {
-                    double distance = editDistance.d(ex, token);
+                    double distance = editDistance.d(ex.getKey(), token);
                     if (distance / token.length() < 0.25) {
-                        log.debug("Distance: " + token + ":" + ex + "->" + distance / token.length());
-                        textFeature.setText(textFeature.getText().replaceAll(token, PLACEHOLDER_PERSONAL_CONTEXT));
+                        log.debug("Distance-{}: {}:{}->{}", ex.getValue(), token, ex.getKey(), distance / token.length());
+                        textFeature.setText(textFeature.getText().replaceAll(token, ex.getValue().name()));
                     }
                 }
             }
         }
         return textFeature.getText();
     }
+
 }
