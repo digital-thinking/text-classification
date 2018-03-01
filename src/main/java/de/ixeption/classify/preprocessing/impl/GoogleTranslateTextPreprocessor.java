@@ -12,12 +12,12 @@ import com.optimaize.langdetect.profiles.LanguageProfile;
 import com.optimaize.langdetect.profiles.LanguageProfileReader;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.preprocessing.TextPreprocessor;
+import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Using google cloud translation api to translate everything to english
@@ -36,11 +36,12 @@ public class GoogleTranslateTextPreprocessor implements TextPreprocessor {
     private int numCharacters = 0;
     private boolean notCallApi = false;
 
-    public GoogleTranslateTextPreprocessor(String targetLanguage) throws IOException {
+    public GoogleTranslateTextPreprocessor(String targetLanguage, double minimalConfidence) throws IOException {
         List<LanguageProfile> languageProfiles = null;
         languageProfiles = new LanguageProfileReader().readAllBuiltIn();
         languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard())
                 .withProfiles(languageProfiles)
+                .minimalConfidence(minimalConfidence)
                 .build();
         boolean validLanguage = languageProfiles.stream().anyMatch(languageProfile -> languageProfile.getLocale().getLanguage().equals(targetLanguage));
         if (!validLanguage) {
@@ -58,7 +59,7 @@ public class GoogleTranslateTextPreprocessor implements TextPreprocessor {
                 return translate(textFeature.getText());
             }
         } else {
-            if (textFeature.getPossibleLocale() != null && !Locale.forLanguageTag(textFeature.getPossibleLocale()).getLanguage().equals(targetLanguage)) {
+            if (textFeature.getPossibleLocale() != null && !LocaleUtils.toLocale(textFeature.getPossibleLocale()).getLanguage().equals(targetLanguage)) {
                 return translate(textFeature.getText());
             }
         }
