@@ -44,7 +44,7 @@ public class AbstractBagOfWordsFeatureExtractorTest {
         for (String token : tokens) {
             int index = cut.getIndex(token);
             assertThat(extract.get(index)).isEqualTo(1.0);
-            assertThat(cut.getToken(index).equalsIgnoreCase(token));
+            assertThat(cut.getToken(index)).isEqualToIgnoringCase(token);
         }
 
 

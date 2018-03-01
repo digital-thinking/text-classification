@@ -65,7 +65,7 @@ public class BinaryTextClassifierTrainer {
      * @return the trained classifier
      * @throws IllegalStateException if the method is called before cross validation was executed
      */
-    public TrainedBinaryTextClassifier train() throws IllegalStateException {
+    public TrainedBinaryTextClassifier train() {
         if (sparseArrays == null || labels == null)
             throw new IllegalStateException("this method can only be used, if cross Validation has been executed before");
         log.info("Starting training");
@@ -104,14 +104,14 @@ public class BinaryTextClassifierTrainer {
                 new ClassificationMeasure[]{new Accuracy(), new Sensitivity(), new Precision(), confusionMatrix});
 
         log.info("...cross validation finished");
-        log.info(String.format(" accuracy: %.3f", measures[0]));
-        log.info(String.format(" recall (true positives/positives): %.3f", measures[1]));
-        log.info(String.format(" precision (true positives/reported positives): %.3f", measures[2]));
+        log.info("accuracy: {}", measures[0]);
+        log.info("recall: {}", measures[1]);
+        log.info("precision: {}", measures[2]);
         return confusionMatrix;
     }
 
     public void saveToFile(Path file) throws IOException {
-        log.info("Saving model to file " + file);
+        log.info("Saving model to file: {}", file);
         if (this.sparseArraySVM == null) {
             throw new RuntimeException("cannot save until model is trained");
         }

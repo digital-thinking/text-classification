@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import smile.math.SparseArray;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +16,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toMap;
 
-public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtractor implements Serializable {
+public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtractor {
 
     private static final Logger log = LoggerFactory.getLogger(BagOfWordsFeatureExtractor.class);
 
@@ -44,7 +43,7 @@ public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtract
         return extractor;
     }
 
-    public void serialize(Path path) throws IOException {
+    public void saveDictionary(Path path) throws IOException {
         ArrayList<Object> data = new ArrayList<>(2);
         data.add(_indexToName);
         data.add(_idfMap);

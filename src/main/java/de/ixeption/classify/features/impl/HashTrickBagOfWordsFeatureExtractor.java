@@ -31,7 +31,7 @@ public class HashTrickBagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatu
         if (_indexToName.containsKey(index)) {
             Collection<String> existing = _indexToName.get(index);
             if (!existing.contains(s)) {
-                log.warn("Hash collision: " + index + ":  " + s + " : " + existing);
+                log.warn("Hash collision {} : {} : {}", index, s, existing);
                 existing.add(s);
             }
         } else {

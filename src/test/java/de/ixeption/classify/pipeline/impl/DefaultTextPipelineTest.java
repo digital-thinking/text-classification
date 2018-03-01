@@ -35,7 +35,7 @@ class DefaultTextPipelineTest {
         SparseArray sparseArray = cut.process(textFeature);
 
         Path path = Files.createTempFile("bow", ".dict");
-        featureExtractor.serialize(path);
+        featureExtractor.saveDictionary(path);
 
         BagOfWordsFeatureExtractor deserialize = BagOfWordsFeatureExtractor.deserialize(N_GRAMS, 2, path);
         DefaultTextPipeline cut2 = new DefaultTextPipeline(deserialize);

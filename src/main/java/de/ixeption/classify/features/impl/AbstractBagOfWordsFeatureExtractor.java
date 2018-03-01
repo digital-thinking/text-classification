@@ -31,7 +31,6 @@ public abstract class AbstractBagOfWordsFeatureExtractor implements TextFeatureE
     private final int nGramsCount;
     private final int tokenMinLength;
 
-
     public AbstractBagOfWordsFeatureExtractor(int nGramsCount, int tokenMinLength) {
         this.nGramsCount = nGramsCount;
         this.tokenMinLength = tokenMinLength;

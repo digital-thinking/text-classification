@@ -7,8 +7,6 @@ public final class PersistenceUtils {
     private PersistenceUtils() {
     }
 
-    ;
-
     /**
      * reads a SVM from a file
      *
@@ -18,11 +16,11 @@ public final class PersistenceUtils {
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(Path fileName) throws IOException, ClassNotFoundException {
         T obj = null;
-        FileInputStream fis = new FileInputStream(fileName.toFile());
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        ObjectInputStream ois = new ObjectInputStream(bis);
-        obj = (T) ois.readObject();
-        ois.close();
+        try (FileInputStream fis = new FileInputStream(fileName.toFile());
+             BufferedInputStream bis = new BufferedInputStream(fis);
+             ObjectInputStream ois = new ObjectInputStream(bis)) {
+            obj = (T) ois.readObject();
+        }
         return obj;
     }
 
@@ -33,10 +31,10 @@ public final class PersistenceUtils {
      * @param fileName the source file
      */
     public static <T> void serialize(T obj, Path fileName) throws IOException {
-        FileOutputStream fos = new FileOutputStream(fileName.toFile());
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(obj);
-        oos.close();
+        try (FileOutputStream fos = new FileOutputStream(fileName.toFile());
+             BufferedOutputStream bos = new BufferedOutputStream(fos);
+             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(obj);
+        }
     }
 }
