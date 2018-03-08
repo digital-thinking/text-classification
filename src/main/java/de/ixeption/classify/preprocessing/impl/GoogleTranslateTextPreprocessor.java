@@ -1,5 +1,6 @@
 package de.ixeption.classify.preprocessing.impl;
 
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
@@ -31,12 +32,23 @@ public class GoogleTranslateTextPreprocessor implements TextPreprocessor {
     private final String targetLanguage;
 
     private final LanguageDetector languageDetector;
-    private final Translate translater;
+    private final Translate translator;
     private int numTranslations = 0;
     private int numCharacters = 0;
     private boolean notCallApi = false;
 
-    public GoogleTranslateTextPreprocessor(String targetLanguage, double minimalConfidence) throws IOException {
+    /**
+     * Builds a translator, which only translates texts, where the source language is not equal to the target language
+     * To detect the source language <a href="https://github.com/optimaize/language-detector">language-detector</a> is used
+     * If no language is detected (which happens in short sentences) and the possible source language equals the target language, no translation is executed
+     *
+     * @param targetLanguage    the target language
+     * @param minimalConfidence confidence which is necessary for the translation not to be executed
+     * @param maxAttempts       retries on the api
+     * @param projectId         google projectId
+     * @throws IOException
+     */
+    public GoogleTranslateTextPreprocessor(String targetLanguage, double minimalConfidence, int maxAttempts, String projectId) throws IOException {
         List<LanguageProfile> languageProfiles = null;
         languageProfiles = new LanguageProfileReader().readAllBuiltIn();
         languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard())
@@ -48,7 +60,11 @@ public class GoogleTranslateTextPreprocessor implements TextPreprocessor {
             throw new IOException("Target language not supported");
         }
         this.targetLanguage = targetLanguage;
-        translater = TranslateOptions.getDefaultInstance().getService();
+        translator = TranslateOptions.newBuilder()
+                .setRetrySettings(RetrySettings.newBuilder().setMaxAttempts(maxAttempts).build())
+                .setProjectId(projectId)
+                .build()
+                .getService();
     }
 
     @Override
@@ -73,7 +89,7 @@ public class GoogleTranslateTextPreprocessor implements TextPreprocessor {
         numTranslations++;
         if (!notCallApi) {
             Translation translation =
-                    translater.translate(
+                    translator.translate(
                             source,
                             Translate.TranslateOption.targetLanguage(targetLanguage));
 

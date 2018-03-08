@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoogleTranslateTextPreprocessorTest {
 
-    GoogleTranslateTextPreprocessor cut = new GoogleTranslateTextPreprocessor("en", 0.99);
+    GoogleTranslateTextPreprocessor cut = new GoogleTranslateTextPreprocessor("en", 0.99, 3, "myProjectId");
 
     public GoogleTranslateTextPreprocessorTest() throws IOException {
         cut.setNotCallApi(true);
@@ -52,12 +52,12 @@ public class GoogleTranslateTextPreprocessorTest {
 
     @Test
     public void testWrongLangauge() {
-        assertThrows(IOException.class, () -> new GoogleTranslateTextPreprocessor("osdif", 0.99));
+        assertThrows(IOException.class, () -> new GoogleTranslateTextPreprocessor("osdif", 0.99, 3, "myProjectId"));
     }
 
     @Test
     public void testEnglishLangauge() throws IOException {
-        new GoogleTranslateTextPreprocessor("en", 0.99);
+        new GoogleTranslateTextPreprocessor("en", 0.99, 3, "myProjectId");
     }
 
 }
