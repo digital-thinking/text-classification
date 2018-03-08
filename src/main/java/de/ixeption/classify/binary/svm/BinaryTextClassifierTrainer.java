@@ -2,6 +2,7 @@ package de.ixeption.classify.binary.svm;
 
 import de.ixeption.classify.PersistenceUtils;
 import de.ixeption.classify.Prediction;
+import de.ixeption.classify.binary.BinaryUtils;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.pipeline.TextProcessingPipeline;
 import de.ixeption.classify.pipeline.impl.DefaultTextPipeline;
@@ -91,11 +92,11 @@ public class BinaryTextClassifierTrainer {
         return new Prediction(predict, posterior);
     }
 
-    public ConfusionMatrixMeasure crossValidate(TextFeature[] features, int[] labels) {
+    public BinaryUtils.BinaryConfusionMatrixMeasure crossValidate(TextFeature[] features, int[] labels) {
         log.info("Starting cross validation");
         SVM.Trainer<SparseArray> svmTrainer = new SVM.Trainer<>(new SparseLinearKernel(), softmarginPenaltyPositive,
                 softmarginPenaltyNegative);
-        ConfusionMatrixMeasure confusionMatrix = new ConfusionMatrixMeasure();
+        BinaryUtils.BinaryConfusionMatrixMeasure confusionMatrix = new BinaryUtils.BinaryConfusionMatrixMeasure();
         this.labels = labels;
         sparseArrays = Arrays.stream(features)//
                 .map(this::transform)//
@@ -118,23 +119,5 @@ public class BinaryTextClassifierTrainer {
         PersistenceUtils.serialize(this.sparseArraySVM, file);
     }
 
-    public static class ConfusionMatrixMeasure implements ClassificationMeasure {
-
-        int[][] m = new int[2][2];
-
-
-        @Override
-        public double measure(int[] truth, int[] prediction) {
-            for (int i = 0; i < truth.length; i++) {
-                m[truth[i]][prediction[i]]++;
-            }
-            return 0;
-        }
-
-        @Override
-        public String toString() {
-            return m[0][0] + "\t" + m[0][1] + "\n" + m[1][0] + "\t" + m[1][1];
-        }
-    }
 
 }

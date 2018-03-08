@@ -1,5 +1,6 @@
 package de.ixeption.classify;
 
+import de.ixeption.classify.binary.BinaryUtils;
 import de.ixeption.classify.binary.svm.BinaryTextClassifierTrainer;
 import de.ixeption.classify.features.FeatureUtils;
 import de.ixeption.classify.features.TextFeature;
@@ -34,7 +35,7 @@ public class HashTrickBagOfWordsIT {
         FeatureUtils.shuffle(textFeatures, labels);
 
         // cross validate
-        BinaryTextClassifierTrainer.ConfusionMatrixMeasure confusionMatrixMeasure = binaryTextClassifierTrainer.crossValidate(textFeatures.toArray(new TextFeature[0]), labels.stream().mapToInt(Integer::intValue).toArray());
+        BinaryUtils.BinaryConfusionMatrixMeasure confusionMatrixMeasure = binaryTextClassifierTrainer.crossValidate(textFeatures.toArray(new TextFeature[0]), labels.stream().mapToInt(Integer::intValue).toArray());
         log.info(" confusion matrix\n" + confusionMatrixMeasure);
 
         // train and validate
