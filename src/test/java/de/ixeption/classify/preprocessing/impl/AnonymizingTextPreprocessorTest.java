@@ -37,7 +37,7 @@ class AnonymizingTextPreprocessorTest {
         assertThat(stringWasReplaced("DE44 5001 0517 5407 3249 31", PATTERN_IBAN.placeHolder)).isTrue();
         assertThat(stringWasReplaced("GR16 0110 1250 0000 0001 2300 695", PATTERN_IBAN.placeHolder)).isTrue();
         assertThat(stringWasReplaced("GB29 NWBK 6016 1331 9268 19", PATTERN_IBAN.placeHolder)).isTrue();
-        assertThat(stringWasReplaced("CH93 0076 2011 6238 5295 7", PATTERN_IBAN.placeHolder)).isTrue();
+        assertThat(stringWasReplaced("CH93 0076 2011 6238 5295 1", PATTERN_IBAN.placeHolder)).isTrue();
 
         assertThat(stringWasReplaced("+49 721 96693-0", PATTERN_IBAN.placeHolder)).isFalse();
         assertThat(stringWasReplaced("+1 415-970-2022", PATTERN_IBAN.placeHolder)).isFalse();
@@ -45,6 +45,7 @@ class AnonymizingTextPreprocessorTest {
 
         assertThat(stringWasReplaced("MP35 Support Team zu ", PATTERN_IBAN.placeHolder)).isFalse();
         assertThat(stringWasReplaced("for 25 years and every day we", PATTERN_IBAN.placeHolder)).isFalse();
+        assertThat(stringWasReplaced("3da744daff95c74d26564557b8def58.gif", PATTERN_IBAN.placeHolder)).isFalse();
 
 
     }
