@@ -1,24 +1,28 @@
 package de.ixeption.classify.preprocessing.impl;
 
-import com.google.common.collect.Sets;
 import de.ixeption.classify.features.TextFeature;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
-import static de.ixeption.classify.preprocessing.ContextType.CONTEXT_PERSONAL;
-import static de.ixeption.classify.preprocessing.ContextType.CONTEXT_PHONE;
+import java.util.HashMap;
+
+import static de.ixeption.classify.preprocessing.impl.ContextBasedAnonymizingTextPreprocessorTest.ContextType.CONTEXT_PERSONAL;
+import static de.ixeption.classify.preprocessing.impl.ContextBasedAnonymizingTextPreprocessorTest.ContextType.CONTEXT_PHONE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ContextBasedAnonymizingTextPreprocessorTest {
 
-    ContextBasedAnonymizingTextPreprocessor cut = new ContextBasedAnonymizingTextPreprocessor(5, 15);
+    ContextBasedAnonymizingTextPreprocessor cut = new ContextBasedAnonymizingTextPreprocessor(5, 15, 0.25);
 
     @Test
     void testReplacement() {
         TextFeature textFeature = new TextFeature("Hello my name is Christian. \n I am from Germany. \n My tel number is 0176 5884661");
-        textFeature.setExcludes(Sets.newHashSet(Pair.of("Christian", CONTEXT_PERSONAL),
-                Pair.of("Germany", CONTEXT_PERSONAL),
-                Pair.of("01765884661", CONTEXT_PHONE)));
+
+        HashMap<String, String> stringHashMap = new HashMap<>();
+        stringHashMap.put("Christian", CONTEXT_PERSONAL.name());
+        stringHashMap.put("Germany", CONTEXT_PERSONAL.name());
+        stringHashMap.put("01765884661", CONTEXT_PHONE.name());
+        textFeature.setExcludes(stringHashMap);
+
         String res = cut.preprocess(textFeature);
         assertThat(res).doesNotContain("Germany", "Christian");
         assertThat(res).contains(CONTEXT_PERSONAL.name());
@@ -27,16 +31,19 @@ class ContextBasedAnonymizingTextPreprocessorTest {
     @Test
     void testTooLong() {
         TextFeature textFeature = new TextFeature("Hello my name is Tolongnameforareplacementreally");
-        textFeature.setExcludes(Sets.newHashSet(Pair.of("Tolongnameforareplacementreally", CONTEXT_PERSONAL)));
+        HashMap<String, String> stringHashMap = new HashMap<>();
+        stringHashMap.put("Tolongnameforareplacementreally", CONTEXT_PERSONAL.name());
+        textFeature.setExcludes(stringHashMap);
         String res = cut.preprocess(textFeature);
         assertThat(res).contains("Tolongnameforareplacementreally");
     }
 
-
     @Test
     void testTooShort() {
         TextFeature textFeature = new TextFeature("Hello my name is Tolo");
-        textFeature.setExcludes(Sets.newHashSet(Pair.of("Tolo", CONTEXT_PERSONAL)));
+        HashMap<String, String> stringHashMap = new HashMap<>();
+        stringHashMap.put("Tolo", CONTEXT_PERSONAL.name());
+        textFeature.setExcludes(stringHashMap);
         String res = cut.preprocess(textFeature);
         assertThat(res).contains("Tolo");
     }
@@ -44,7 +51,9 @@ class ContextBasedAnonymizingTextPreprocessorTest {
     @Test
     void testMinBoundary() {
         TextFeature textFeature = new TextFeature("Hello my name is Toloo");
-        textFeature.setExcludes(Sets.newHashSet(Pair.of("Toloo", CONTEXT_PERSONAL)));
+        HashMap<String, String> stringHashMap = new HashMap<>();
+        stringHashMap.put("Toloo", CONTEXT_PERSONAL.name());
+        textFeature.setExcludes(stringHashMap);
         String res = cut.preprocess(textFeature);
         assertThat(res).doesNotContain("Toloo");
     }
@@ -52,9 +61,15 @@ class ContextBasedAnonymizingTextPreprocessorTest {
     @Test
     void testMaxBoundary() {
         TextFeature textFeature = new TextFeature("Hello my name is Tololololololol");
-        textFeature.setExcludes(Sets.newHashSet(Pair.of("Tololololololol", CONTEXT_PERSONAL)));
+        HashMap<String, String> stringHashMap = new HashMap<>();
+        stringHashMap.put("Tololololololol", CONTEXT_PERSONAL.name());
+        textFeature.setExcludes(stringHashMap);
         String res = cut.preprocess(textFeature);
         assertThat(res).contains("Tololololololol");
+    }
+
+    static public enum ContextType {
+        CONTEXT_PERSONAL, CONTEXT_PHONE
     }
 
 
