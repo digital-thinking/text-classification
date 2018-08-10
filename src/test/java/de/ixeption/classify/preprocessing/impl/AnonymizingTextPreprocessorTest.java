@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static de.ixeption.classify.preprocessing.impl.AnonymizingTextPreprocessor.ReplaceRegEx.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 class AnonymizingTextPreprocessorTest {
 
     AnonymizingTextPreprocessor cut = new AnonymizingTextPreprocessor();
@@ -19,7 +20,7 @@ class AnonymizingTextPreprocessorTest {
     }
 
     private boolean stringWasReplaced(String s, String placeHolder) {
-        String replaced = cut.preprocess(new TextFeature(s));
+        String replaced = cut.preprocess(new TextFeature(s)).getText();
         return replaced.contains(placeHolder);
     }
 
@@ -47,7 +48,6 @@ class AnonymizingTextPreprocessorTest {
         assertThat(stringWasReplaced("for 25 years and every day we", PATTERN_IBAN.placeHolder)).isFalse();
         assertThat(stringWasReplaced("3da744daff95c74d26564557b8def58.gif", PATTERN_IBAN.placeHolder)).isFalse();
 
-
     }
 
     @Test
@@ -58,8 +58,6 @@ class AnonymizingTextPreprocessorTest {
 
         assertThat(stringWasReplaced("t: +31 (0)11230 14 14", PATTERN_PHONE.placeHolder)).isTrue();
         assertThat(stringWasReplaced("© 1999-2017 PayPal", PATTERN_PHONE.placeHolder)).isFalse();
-
-
 
     }
 
@@ -73,7 +71,9 @@ class AnonymizingTextPreprocessorTest {
 
     @Test
     public void testPhrase() {
-        String preprocess = cut.preprocess(new TextFeature("Please visit www.mypage.com, write me an email support@mypage.com or call me +43 721 466 448 and send the money to QA58 DOHB 0000 1234 5678 90AB CDEF G. "));
+        String preprocess = cut.preprocess(new TextFeature(
+                "Please visit www.mypage.com, write me an email support@mypage.com or call me +43 721 466 448 and send the money to QA58 DOHB 0000 1234 5678 90AB CDEF G. "))
+                .getText();
         assertThat(preprocess).contains(PATTERN_IBAN.placeHolder);
         assertThat(preprocess).contains(PATTERN_EMAIL.placeHolder);
         assertThat(preprocess).contains(PATTERN_PHONE.placeHolder);
@@ -85,7 +85,6 @@ class AnonymizingTextPreprocessorTest {
         assertThat(preprocess).doesNotContain("+43 721 466 448");
 
     }
-
 
 }
 

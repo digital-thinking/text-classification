@@ -5,5 +5,5 @@ import de.ixeption.classify.features.TextFeature;
 @FunctionalInterface
 public interface TextPreprocessor {
 
-    String preprocess(TextFeature textFeature);
+    TextFeature preprocess(TextFeature textFeature);
 }

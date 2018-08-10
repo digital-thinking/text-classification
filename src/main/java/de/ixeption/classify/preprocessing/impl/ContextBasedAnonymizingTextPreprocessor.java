@@ -10,6 +10,7 @@ import smile.nlp.tokenizer.BreakIteratorTokenizer;
 import java.util.Locale;
 import java.util.Map;
 
+
 public class ContextBasedAnonymizingTextPreprocessor implements TextPreprocessor {
 
     private static final Logger log = LoggerFactory.getLogger(ContextBasedAnonymizingTextPreprocessor.class);
@@ -32,7 +33,7 @@ public class ContextBasedAnonymizingTextPreprocessor implements TextPreprocessor
     }
 
     @Override
-    public String preprocess(TextFeature textFeature) {
+    public TextFeature preprocess(TextFeature textFeature) {
         for (Map.Entry<String, String> ex : textFeature.getExcludes().entrySet()) {
             String toExclude = ex.getKey();
             if (toExclude != null && toExclude.length() >= minLength && toExclude.length() < maxLength) {
@@ -47,7 +48,7 @@ public class ContextBasedAnonymizingTextPreprocessor implements TextPreprocessor
                 }
             }
         }
-        return textFeature.getText();
+        return textFeature;
     }
 
 }

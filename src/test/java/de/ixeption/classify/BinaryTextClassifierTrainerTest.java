@@ -6,6 +6,7 @@ import de.ixeption.classify.binary.svm.TrainedBinaryTextClassifier;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import de.ixeption.classify.pipeline.impl.DefaultTextPipeline;
+import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 
 class BinaryTextClassifierTrainerTest {
 
@@ -26,7 +28,7 @@ class BinaryTextClassifierTrainerTest {
         testFeatures = new TextFeature[]{textFeatureA, textFeatureB};
         testLabels = new int[]{0, 1};
         binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5,
-                new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337, 2, 2)));
+                new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new StemmingNGramTextTokenizer(2, 2, 25)));
     }
 
     @Test
@@ -46,12 +48,10 @@ class BinaryTextClassifierTrainerTest {
         Path path = Files.createTempFile("binary-svm", ".model");
         binaryTextClassifierTrainer.saveToFile(path);
 
-
-        TextClassifier persisted = new DeserializedSVMTextClassifier(new DefaultTextPipeline(
-                new HashTrickBagOfWordsFeatureExtractor(1337, 2, 2)), path);
+        TextClassifier persisted = new DeserializedSVMTextClassifier(
+                new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new StemmingNGramTextTokenizer(2, 2, 25)), path);
         assertThat(persisted.predict(testFeatures[0]).getLabel()).isEqualTo(0);
         assertThat(persisted.predict(testFeatures[1]).getLabel()).isEqualTo(1);
-
 
     }
 

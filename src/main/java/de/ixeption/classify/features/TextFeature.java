@@ -3,24 +3,23 @@ package de.ixeption.classify.features;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class TextFeature {
 
-    private String possibleLocale;
+    private String language;
     private String text;
     private Map<String, String> excludes = new HashMap<>();
 
-    public TextFeature(String text, String possibleLocale) {
+    public TextFeature(String text, String language) {
         this.text = text;
-
-        this.possibleLocale = possibleLocale;
+        this.language = language;
     }
 
     public TextFeature(String text) {
         this.text = text;
-        this.possibleLocale = null;
+        this.language = null;
 
     }
-
 
     public String getText() {
         return text;
@@ -38,11 +37,11 @@ public class TextFeature {
         this.excludes = excludes;
     }
 
-    public String getPossibleLocale() {
-        return possibleLocale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setPossibleLocale(String possibleLocale) {
-        this.possibleLocale = possibleLocale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

@@ -23,7 +23,7 @@ class ContextBasedAnonymizingTextPreprocessorTest {
         stringHashMap.put("01765884661", CONTEXT_PHONE.name());
         textFeature.setExcludes(stringHashMap);
 
-        String res = cut.preprocess(textFeature);
+        String res = cut.preprocess(textFeature).getText();
         assertThat(res).doesNotContain("Germany", "Christian");
         assertThat(res).contains(CONTEXT_PERSONAL.name());
     }
@@ -34,7 +34,7 @@ class ContextBasedAnonymizingTextPreprocessorTest {
         HashMap<String, String> stringHashMap = new HashMap<>();
         stringHashMap.put("Tolongnameforareplacementreally", CONTEXT_PERSONAL.name());
         textFeature.setExcludes(stringHashMap);
-        String res = cut.preprocess(textFeature);
+        String res = cut.preprocess(textFeature).getText();
         assertThat(res).contains("Tolongnameforareplacementreally");
     }
 
@@ -44,7 +44,7 @@ class ContextBasedAnonymizingTextPreprocessorTest {
         HashMap<String, String> stringHashMap = new HashMap<>();
         stringHashMap.put("Tolo", CONTEXT_PERSONAL.name());
         textFeature.setExcludes(stringHashMap);
-        String res = cut.preprocess(textFeature);
+        String res = cut.preprocess(textFeature).getText();
         assertThat(res).contains("Tolo");
     }
 
@@ -54,7 +54,7 @@ class ContextBasedAnonymizingTextPreprocessorTest {
         HashMap<String, String> stringHashMap = new HashMap<>();
         stringHashMap.put("Toloo", CONTEXT_PERSONAL.name());
         textFeature.setExcludes(stringHashMap);
-        String res = cut.preprocess(textFeature);
+        String res = cut.preprocess(textFeature).getText();
         assertThat(res).doesNotContain("Toloo");
     }
 
@@ -64,7 +64,7 @@ class ContextBasedAnonymizingTextPreprocessorTest {
         HashMap<String, String> stringHashMap = new HashMap<>();
         stringHashMap.put("Tololololololol", CONTEXT_PERSONAL.name());
         textFeature.setExcludes(stringHashMap);
-        String res = cut.preprocess(textFeature);
+        String res = cut.preprocess(textFeature).getText();
         assertThat(res).contains("Tololololololol");
     }
 

@@ -1,56 +1,59 @@
 package de.ixeption.classify.features.impl;
 
 import de.ixeption.classify.features.WordIndexing;
+import de.ixeption.classify.tokenization.Token;
+import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 public class BagOfWordsFeatureExtractorTest {
 
     public static final int MIN_LENGTH = 3;
     private static BagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
-    private static LinkedHashSet<String> corpus;
+    private static StemmingNGramTextTokenizer stemmingNGramTextTokenizer = new StemmingNGramTextTokenizer(2, MIN_LENGTH, 25);
+    private static LinkedHashSet<Token> corpus;
+    private static Set<String> sentences;
 
     @BeforeAll
     public static void setUp() {
-        corpus = Sets.newLinkedHashSet();
-        corpus.add("Hello, my name is Jimmy Pop");
-        corpus.add("And I'm a dumb white guy");
-        corpus.add("I'm not old or new but middle school");
-        corpus.add("Fifth grade like junior high");
-        corpus.add("I don't know mofo if y'all peeps");
-        corpus.add("Be buggin' give props to my ho 'cause she fly");
-        corpus.add("But I can take the heat 'cause I'm the other white meat");
-        corpus.add("Known as 'Kid Funky Fried'");
+        sentences = Sets.newLinkedHashSet();
+        sentences.add("Hello, my name is Jimmy Pop");
+        sentences.add("And I'm a dumb white guy");
+        sentences.add("I'm not old or new but middle school");
+        sentences.add("Fifth grade like junior high");
+        sentences.add("I don't know mofo if y'all peeps");
+        sentences.add("Be buggin' give props to my ho 'cause she fly");
+        sentences.add("But I can take the heat 'cause I'm the other white meat");
+        sentences.add("Known as 'Kid Funky Fried'");
 
-        bagOfWordsFeatureExtractor = new BagOfWordsFeatureExtractor(2, MIN_LENGTH, corpus);
+        corpus = sentences.stream().map(stemmingNGramTextTokenizer::extractTokens).flatMap(Arrays::stream).collect(Collectors.toCollection(LinkedHashSet::new));
+        bagOfWordsFeatureExtractor = new BagOfWordsFeatureExtractor(corpus);
     }
 
     @Test
     public void testIndexExists() throws WordIndexing.IndexerException {
-        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("hello")[0])).isEqualTo(0);
-        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("fried")[0])).isEqualTo(73);
-        assertThat(bagOfWordsFeatureExtractor.getIndex(bagOfWordsFeatureExtractor.extractTokens("kid funky")[2])).isEqualTo(75);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("hello")[0].getText())).isEqualTo(0);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("fried")[0].getText())).isEqualTo(73);
+        assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("kid funky")[2].getText())).isEqualTo(75);
     }
 
     @Test
     public void testDictSize() {
-        int ngrams = bagOfWordsFeatureExtractor.getnGramsCount();
-        BagOfWordsFeatureExtractor noNGram = new BagOfWordsFeatureExtractor(0, MIN_LENGTH, corpus);
-        int expectedTokens = corpus.stream().map(noNGram::extractTokens).mapToInt(value -> value.length).map(count -> count + (count - ngrams + 1)).sum();
-        Map<String, Long> counts = corpus.stream().map(noNGram::extractTokens).flatMap(Arrays::stream).collect(groupingBy(Function.identity(), counting()));
-        int multiOccurrences = counts.entrySet().stream().mapToInt(value -> (int) (value.getValue() - 1L)).sum();
-        assertThat(bagOfWordsFeatureExtractor.getDictSize()).isEqualTo(expectedTokens - multiOccurrences);
+        int ngrams = stemmingNGramTextTokenizer.getnGramsCount();
+        StemmingNGramTextTokenizer noNgrams = new StemmingNGramTextTokenizer(1, MIN_LENGTH, 25);
+        int numTokens = sentences.stream().map(noNgrams::extractTokens).flatMap(Arrays::stream).collect(toCollection(LinkedHashSet::new)).size();
+        assertThat(bagOfWordsFeatureExtractor.getDictSize()).isEqualTo(numTokens + numTokens - ngrams - 1);
     }
 
     @Test()
@@ -64,6 +67,5 @@ public class BagOfWordsFeatureExtractorTest {
         assertThrows(WordIndexing.IndexerException.class, () -> bagOfWordsFeatureExtractor.getIndex("as 'Kid"));
 
     }
-
 
 }

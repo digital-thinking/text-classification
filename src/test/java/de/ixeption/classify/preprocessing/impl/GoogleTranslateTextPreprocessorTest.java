@@ -9,14 +9,14 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+
 public class GoogleTranslateTextPreprocessorTest {
 
-    GoogleTranslateTextPreprocessor cut = new GoogleTranslateTextPreprocessor("en", 0.99, 3, "myProjectId");
+    GoogleTranslateTextPreprocessor cut = new GoogleTranslateTextPreprocessor("en", 3, "myProjectId");
 
     public GoogleTranslateTextPreprocessorTest() throws IOException {
         cut.setNotCallApi(true);
     }
-
 
     @Test
     @Disabled("calls the api")
@@ -29,16 +29,16 @@ public class GoogleTranslateTextPreprocessorTest {
     void testIsAlreadyEnglish() {
         cut.setNotCallApi(true);
         TextFeature textFeature = new TextFeature("Hello my name is xyz, I´m from canada");
+        textFeature.setLanguage("en");
         cut.preprocess(textFeature);
         assertThat(cut.getNumTranslations()).isEqualTo(0);
     }
-
 
     @Test
     void testIsAlreadyEnglishWithLocale() {
         cut.setNotCallApi(true);
         TextFeature textFeature = new TextFeature("Hello name");
-        textFeature.setPossibleLocale("en_US");
+        textFeature.setLanguage("en");
         cut.preprocess(textFeature);
         assertThat(cut.getNumTranslations()).isEqualTo(0);
     }
@@ -51,13 +51,13 @@ public class GoogleTranslateTextPreprocessorTest {
     }
 
     @Test
-    public void testWrongLangauge() {
-        assertThrows(IOException.class, () -> new GoogleTranslateTextPreprocessor("osdif", 0.99, 3, "myProjectId"));
+    public void testWrongLanguage() {
+        assertThrows(IllegalArgumentException.class, () -> new GoogleTranslateTextPreprocessor("osdif", 3, "myProjectId"));
     }
 
     @Test
-    public void testEnglishLangauge() throws IOException {
-        new GoogleTranslateTextPreprocessor("en", 0.99, 3, "myProjectId");
+    public void testEnglishLanguage() throws IOException {
+        new GoogleTranslateTextPreprocessor("en", 3, "myProjectId");
     }
 
 }

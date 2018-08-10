@@ -6,18 +6,19 @@ import de.ixeption.classify.preprocessing.TextPreprocessor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class AnonymizingTextPreprocessor implements TextPreprocessor {
 
-
     @Override
-    public String preprocess(TextFeature textFeature) {
+    public TextFeature preprocess(TextFeature textFeature) {
         String text = textFeature.getText();
         for (ReplaceRegEx regEx : ReplaceRegEx.values()) {
             Matcher matcher = regEx.p.matcher(text);
             // force the placeholder to be recognized as a single token
             text = matcher.replaceAll(" " + regEx.placeHolder + " ");
         }
-        return text;
+        textFeature.setText(text);
+        return textFeature;
     }
 
     public enum ReplaceRegEx {
@@ -29,10 +30,8 @@ public class AnonymizingTextPreprocessor implements TextPreprocessor {
         PATTERN_PHONE("PLACEHOLDER_PHONE", Pattern.compile("(\\+\\d{2}).*([0-9\\-_ ]{6,})|((\\(\\d{3}\\)?)|(\\d{3}))([\\s-./]?)(\\d{3})([\\s-./]?)(\\d{4})", Pattern.CASE_INSENSITIVE)),;
         // @formatter:on
 
-
         public final Pattern p;
         public final String placeHolder;
-
 
         ReplaceRegEx(final String placeHolder, Pattern pattern) {
             this.p = pattern;
