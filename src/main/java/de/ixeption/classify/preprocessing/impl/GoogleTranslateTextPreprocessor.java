@@ -9,8 +9,6 @@ import de.ixeption.classify.preprocessing.TextPreprocessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 
 /**
  * Using google cloud translation api to translate everything to english
@@ -33,9 +31,8 @@ public class GoogleTranslateTextPreprocessor implements TextPreprocessor {
     * @param targetLanguage the target language    *
     * @param maxAttempts    retries on the api
     * @param projectId      google projectId
-    * @throws IOException
     */
-   public GoogleTranslateTextPreprocessor(String targetLanguage, int maxAttempts, String projectId) throws IOException {
+   public GoogleTranslateTextPreprocessor(String targetLanguage, int maxAttempts, String projectId) {
       if (targetLanguage.length() > 3) {
          throw new IllegalArgumentException("Invalid language");
       }

@@ -8,10 +8,12 @@ public final class PersistenceUtils {
     }
 
     /**
-     * reads a SVM from a file
      *
-     * @param fileName the target file
-     * @return the object
+     * @param fileName the file to save to
+     * @param <T> the object type
+     * @return deserialized object
+     * @throws IOException if file is not valid
+     * @throws ClassNotFoundException if the class is not found
      */
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(Path fileName) throws IOException, ClassNotFoundException {
@@ -25,10 +27,11 @@ public final class PersistenceUtils {
     }
 
     /**
-     * saves a trained SVM to a file
      *
-     * @param obj      save a object
-     * @param fileName the source file
+     * @param obj the object to serialize
+     * @param fileName the file to load from
+     * @param <T> the object type
+     * @throws IOException if the file is not found
      */
     public static <T> void serialize(T obj, Path fileName) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(fileName.toFile());

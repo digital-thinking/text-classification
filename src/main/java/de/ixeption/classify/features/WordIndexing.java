@@ -1,11 +1,9 @@
 package de.ixeption.classify.features;
 
-import de.ixeption.classify.features.impl.AbstractBagOfWordsFeatureExtractor;
-
 public interface WordIndexing {
     /**
      * Be aware, that this method does not preprocess your input.
-     * This means that the token you want to lookup should preprocessed by {@link AbstractBagOfWordsFeatureExtractor#extractTokens(String)}
+     * This means that the token you want to lookup should preprocessed by {@link de.ixeption.classify.tokenization.TextTokenizer}
      *
      * @param s the token
      * @return the index of the token
