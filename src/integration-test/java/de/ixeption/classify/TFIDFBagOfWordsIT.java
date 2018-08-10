@@ -6,8 +6,9 @@ import de.ixeption.classify.features.FeatureUtils;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.impl.BagOfWordsFeatureExtractor;
 import de.ixeption.classify.pipeline.impl.DefaultTextPipeline;
+import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
 import de.ixeption.classify.tokenization.Token;
-import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
+import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -24,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TFIDFBagOfWordsIT {
 
    private static final Logger log = LoggerFactory.getLogger(TFIDFBagOfWordsIT.class);
-
    @Test
    public void testSentimentAnalysis() {
       // https://www.kaggle.com/c/si650winter11/data
@@ -33,12 +33,14 @@ public class TFIDFBagOfWordsIT {
       ArrayList<Integer> labels = data.getLabels();
       FeatureUtils.shuffle(textFeatures, labels);
 
-      StemmingNGramTextTokenizer stemmingNGramTextTokenizer = new StemmingNGramTextTokenizer(3, 3, 25);
+      NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
+      StemmingNGrammProcessor stemmingNGrammProcessor = new StemmingNGrammProcessor(3, 3, 25);
 
-      Set<Token> corpus = textFeatures.stream().map(TextFeature::getText).map(stemmingNGramTextTokenizer::extractTokens).flatMap(Arrays::stream).collect(Collectors.toSet());
+      Set<Token> corpus = textFeatures.stream().map(normalizingTextTokenizer::tokenize).map(stemmingNGrammProcessor::process).flatMap(Arrays::stream).collect(Collectors.toSet());
+      DefaultTextPipeline pipeline = new DefaultTextPipeline(new BagOfWordsFeatureExtractor(corpus), normalizingTextTokenizer);
+      pipeline.getTokenProcessors().add(stemmingNGrammProcessor);
 
-      BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5,
-              new DefaultTextPipeline(new BagOfWordsFeatureExtractor(corpus), stemmingNGramTextTokenizer));
+      BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, pipeline);
 
       // cross validate
       BinaryUtils.BinaryConfusionMatrixMeasure confusionMatrixMeasure = binaryTextClassifierTrainer

@@ -6,7 +6,8 @@ import de.ixeption.classify.features.FeatureUtils;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import de.ixeption.classify.pipeline.impl.DefaultTextPipeline;
-import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
+import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -20,10 +21,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashTrickBagOfWordsIT {
 
+    public BinaryTextClassifierTrainer binaryTextClassifierTrainer;
+
    private static final Logger log = LoggerFactory.getLogger(HashTrickBagOfWordsIT.class);
 
-   public BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5,
-           new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new StemmingNGramTextTokenizer(3, 3, 25)));
+    HashTrickBagOfWordsIT() {
+        DefaultTextPipeline pipeline = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new NormalizingTextTokenizer());
+        pipeline.getTokenProcessors().add(new StemmingNGrammProcessor(3, 3, 25));
+        binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, pipeline);
+
+    }
 
    @Test
    public void testSentimentAnalysis() {

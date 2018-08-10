@@ -1,8 +1,10 @@
 package de.ixeption.classify.features.impl;
 
+import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
+import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
 import de.ixeption.classify.tokenization.Token;
-import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
+import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,8 @@ public class BagOfWordsFeatureExtractorTest {
 
     public static final int MIN_LENGTH = 3;
     private static BagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
-    private static StemmingNGramTextTokenizer stemmingNGramTextTokenizer = new StemmingNGramTextTokenizer(2, MIN_LENGTH, 25);
+    static StemmingNGrammProcessor processor = new StemmingNGrammProcessor(2, MIN_LENGTH, 25);
+    private static NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
     private static LinkedHashSet<Token> corpus;
     private static Set<String> sentences;
 
@@ -37,22 +40,31 @@ public class BagOfWordsFeatureExtractorTest {
         sentences.add("But I can take the heat 'cause I'm the other white meat");
         sentences.add("Known as 'Kid Funky Fried'");
 
-        corpus = sentences.stream().map(stemmingNGramTextTokenizer::extractTokens).flatMap(Arrays::stream).collect(Collectors.toCollection(LinkedHashSet::new));
+        corpus = sentences.stream()
+                .map(TextFeature::new)
+                .map(normalizingTextTokenizer::tokenize)
+                .map(processor::process)
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         bagOfWordsFeatureExtractor = new BagOfWordsFeatureExtractor(corpus);
     }
 
     @Test
     public void testIndexExists() throws WordIndexing.IndexerException {
-        assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("hello")[0].getText())).isEqualTo(0);
-        assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("fried")[0].getText())).isEqualTo(73);
-        assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("kid funky")[2].getText())).isEqualTo(75);
+
+        assertThat(bagOfWordsFeatureExtractor
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("hello")))[0].getText())).isEqualTo(0);
+        assertThat(bagOfWordsFeatureExtractor
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("fried")))[0].getText())).isEqualTo(73);
+        assertThat(bagOfWordsFeatureExtractor
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("kid funky")))[2].getText())).isEqualTo(75);
     }
 
     @Test
     public void testDictSize() {
-        int ngrams = stemmingNGramTextTokenizer.getnGramsCount();
-        StemmingNGramTextTokenizer noNgrams = new StemmingNGramTextTokenizer(1, MIN_LENGTH, 25);
-        int numTokens = sentences.stream().map(noNgrams::extractTokens).flatMap(Arrays::stream).collect(toCollection(LinkedHashSet::new)).size();
+        int ngrams = processor.getnGramsCount();
+        StemmingNGrammProcessor processor1 = new StemmingNGrammProcessor(1, MIN_LENGTH, 25);
+        int numTokens = sentences.stream().map(TextFeature::new).map(normalizingTextTokenizer::tokenize).map(processor1::process).flatMap(Arrays::stream).collect(toCollection(LinkedHashSet::new)).size();
         assertThat(bagOfWordsFeatureExtractor.getDictSize()).isEqualTo(numTokens + numTokens - ngrams - 1);
     }
 

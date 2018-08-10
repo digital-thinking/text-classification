@@ -1,7 +1,9 @@
 package de.ixeption.classify.features.impl;
 
+import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
-import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
+import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,8 @@ public class HashTrickBagOfWordsFeatureExtractorTest {
 
    public static final int MIN_LENGTH = 3;
    static HashTrickBagOfWordsFeatureExtractor bagOfWordsFeatureExtractor = new HashTrickBagOfWordsFeatureExtractor(133);
-   private static StemmingNGramTextTokenizer stemmingNGramTextTokenizer = new StemmingNGramTextTokenizer(2, MIN_LENGTH, 25);
+   private static NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
+   private static StemmingNGrammProcessor stemmingNGrammProcessor = new StemmingNGrammProcessor(2, MIN_LENGTH, 25);
 
    @BeforeAll
    public static void setUp() {
@@ -33,10 +36,10 @@ public class HashTrickBagOfWordsFeatureExtractorTest {
 
    @Test
    public void testIndexExists() throws WordIndexing.IndexerException {
-      assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("hello")[0].getText())).isEqualTo(1852943150);
-      assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("fried")[0].getText())).isEqualTo(-1687772401);
+      assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGrammProcessor.process(normalizingTextTokenizer.tokenize(new TextFeature("hello")))[0].getText())).isEqualTo(1852943150);
+      assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGrammProcessor.process(normalizingTextTokenizer.tokenize(new TextFeature("fried")))[0].getText())).isEqualTo(-1687772401);
       // ngram 2 words -> 3rd element
-      assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGramTextTokenizer.extractTokens("kid funky")[2].getText())).isEqualTo(664005995);
+      assertThat(bagOfWordsFeatureExtractor.getIndex(stemmingNGrammProcessor.process(normalizingTextTokenizer.tokenize(new TextFeature("kid funky")))[2].getText())).isEqualTo(664005995);
    }
 
    @Test

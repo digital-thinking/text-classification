@@ -1,8 +1,11 @@
 package de.ixeption.classify.features.impl;
 
+import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
+import de.ixeption.classify.postprocessing.TokenProcessor;
+import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
 import de.ixeption.classify.tokenization.Token;
-import de.ixeption.classify.tokenization.impl.StemmingNGramTextTokenizer;
+import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,6 +23,7 @@ public class AbstractBagOfWordsFeatureExtractorTest {
 
    private static final int N_GRAMS = 2;
    private static final int MIN_LENGTH = 3;
+   static TokenProcessor processor = new StemmingNGrammProcessor(1, MIN_LENGTH, 25);
 
    public static Stream<AbstractBagOfWordsFeatureExtractor> getImplementations() {
       Set<String> corpus = Sets.newLinkedHashSet();
@@ -31,8 +35,11 @@ public class AbstractBagOfWordsFeatureExtractorTest {
       corpus.add("Be buggin' give props to my ho 'cause she fly");
       corpus.add("But I can take the heat 'cause I'm the other white meat");
       corpus.add("Known as 'Kid Funky Fried'");
-      StemmingNGramTextTokenizer stemmingNGramTextTokenizer = new StemmingNGramTextTokenizer(1, MIN_LENGTH, 25);
-      Set<Token> strings = corpus.stream().map(stemmingNGramTextTokenizer::extractTokens).flatMap(Arrays::stream).collect(Collectors.toSet());
+      NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
+      Set<Token> strings = corpus.stream().map(TextFeature::new)
+              .map(normalizingTextTokenizer::tokenize)
+              .map(processor::process).flatMap(Arrays::stream)
+              .collect(Collectors.toSet());
 
       return Stream.of(new BagOfWordsFeatureExtractor(strings), new HashTrickBagOfWordsFeatureExtractor(1337));
    }
