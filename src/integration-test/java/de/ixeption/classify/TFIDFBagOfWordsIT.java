@@ -55,7 +55,7 @@ public class TFIDFBagOfWordsIT {
       TextFeature[] testX = textFeatures.stream().skip(trainSize).toArray(TextFeature[]::new);
       int[] testY = labels.stream().skip(trainSize).mapToInt(Integer::intValue).toArray();
 
-      TextClassifier classifier = binaryTextClassifierTrainer.train(trainX, trainY);
+      TextClassifier classifier = binaryTextClassifierTrainer.train(trainX, trainY, null);
       int[] predictions = Arrays.stream(testX).map(classifier::predict).mapToInt(Prediction::getLabel).toArray();
 
       int correct = 0;

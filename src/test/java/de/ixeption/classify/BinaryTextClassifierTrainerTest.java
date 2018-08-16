@@ -24,8 +24,8 @@ class BinaryTextClassifierTrainerTest {
     private BinaryTextClassifierTrainer binaryTextClassifierTrainer;
 
     private void initTrainingData() {
-        TextFeature textFeatureA = new TextFeature("class_a");
-        TextFeature textFeatureB = new TextFeature("class_b");
+        TextFeature textFeatureA = new TextFeature("classA");
+        TextFeature textFeatureB = new TextFeature("classB");
         testFeatures = new TextFeature[]{textFeatureA, textFeatureB};
         testLabels = new int[]{0, 1};
         DefaultTextPipeline pipeline = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new NormalizingTextTokenizer());
@@ -38,7 +38,7 @@ class BinaryTextClassifierTrainerTest {
     public void testTraining() {
         initTrainingData();
 
-        TrainedBinaryTextClassifier trained = binaryTextClassifierTrainer.train(testFeatures, testLabels);
+        TrainedBinaryTextClassifier trained = binaryTextClassifierTrainer.train(testFeatures, testLabels, null);
         assertThat(trained.predict(testFeatures[0]).getLabel()).isEqualTo(0);
         assertThat(trained.predict(testFeatures[1]).getLabel()).isEqualTo(1);
     }
@@ -47,7 +47,7 @@ class BinaryTextClassifierTrainerTest {
     public void testPersistence() throws IOException, ClassNotFoundException {
         initTrainingData();
 
-        binaryTextClassifierTrainer.train(testFeatures, testLabels);
+        binaryTextClassifierTrainer.train(testFeatures, testLabels, null);
         Path path = Files.createTempFile("binary-svm", ".model");
         binaryTextClassifierTrainer.saveToFile(path);
 

@@ -54,7 +54,7 @@ public class BagOfWordsFeatureExtractor extends AbstractBagOfWordsFeatureExtract
    private void buildCorpus(Set<Token> corpus) {
       int currentIndex = 0;
       for (Token s : corpus) {
-         if (!_indexToName.containsValue(s.getText())) {
+          if (!_nameToIndex.containsKey(s.getText())) {
             _indexToName.put(currentIndex, s.getText());
             _nameToIndex.put(s.getText(), currentIndex);
             _idfMap.put(currentIndex, 1.0);

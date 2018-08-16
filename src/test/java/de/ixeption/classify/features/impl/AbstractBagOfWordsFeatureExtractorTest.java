@@ -51,7 +51,6 @@ public class AbstractBagOfWordsFeatureExtractorTest {
       SparseArray extract = cut.extract(Token.stringArrayToArray(s));
       String[] tokens = Arrays.stream(s).filter(s1 -> s1.length() >= MIN_LENGTH).toArray(String[]::new);
 
-      int i = 0;
       for (String token : tokens) {
          int index = cut.getIndex(token);
          assertThat(extract.get(index)).isEqualTo(1.0);

@@ -6,4 +6,7 @@ import smile.math.SparseArray;
 
 public interface TextProcessingPipeline extends WordIndexing {
     SparseArray process(TextFeature textFeature);
+
+    TokenizedText prepare(TextFeature textFeature);
+
 }

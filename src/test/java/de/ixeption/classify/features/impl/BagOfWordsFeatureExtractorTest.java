@@ -14,7 +14,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -22,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class BagOfWordsFeatureExtractorTest {
 
     public static final int MIN_LENGTH = 3;
-    private static BagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
     static StemmingNGrammProcessor processor = new StemmingNGrammProcessor(2, MIN_LENGTH, 25);
+    private static BagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
     private static NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
     private static LinkedHashSet<Token> corpus;
     private static Set<String> sentences;
@@ -55,17 +54,21 @@ public class BagOfWordsFeatureExtractorTest {
         assertThat(bagOfWordsFeatureExtractor
                 .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("hello")))[0].getText())).isEqualTo(0);
         assertThat(bagOfWordsFeatureExtractor
-                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("fried")))[0].getText())).isEqualTo(73);
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("fried")))[0].getText())).isEqualTo(72);
         assertThat(bagOfWordsFeatureExtractor
                 .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("kid funky")))[2].getText())).isEqualTo(75);
     }
 
     @Test
-    public void testDictSize() {
-        int ngrams = processor.getnGramsCount();
-        StemmingNGrammProcessor processor1 = new StemmingNGrammProcessor(1, MIN_LENGTH, 25);
-        int numTokens = sentences.stream().map(TextFeature::new).map(normalizingTextTokenizer::tokenize).map(processor1::process).flatMap(Arrays::stream).collect(toCollection(LinkedHashSet::new)).size();
-        assertThat(bagOfWordsFeatureExtractor.getDictSize()).isEqualTo(numTokens + numTokens - ngrams - 1);
+    public void testNgrams() {
+        String test1 = "hello this is a test"; // 2 token + 1 ngram
+        String test2 = "hello this is a test two"; // +1 token + 1 ngram
+        assertThat(normalizingTextTokenizer.tokenize(new TextFeature(test1)).length).isEqualTo(2);
+        assertThat(normalizingTextTokenizer.tokenize(new TextFeature(test2)).length).isEqualTo(3);
+        assertThat(processor.process(normalizingTextTokenizer.tokenize(new TextFeature(test1))).length).isEqualTo(3);
+        assertThat(processor.process(normalizingTextTokenizer.tokenize(new TextFeature(test2))).length).isEqualTo(5);
+
+
     }
 
     @Test()

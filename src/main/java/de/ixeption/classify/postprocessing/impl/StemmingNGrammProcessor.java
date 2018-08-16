@@ -27,18 +27,37 @@ public class StemmingNGrammProcessor implements TokenProcessor {
 
     }
 
+    public static String replaceToken(String s) {
+        if (StringUtils.isNumericSpace(s)) {
+            return "token_number";
+        }
+        if (StringUtils.containsAny(s, '€', '$')) {
+            return "token_currency";
+        }
+
+        if (!StringUtils.isAlphanumericSpace(s)) {
+            if (s.length() > 5 && !s.contains("_")) {
+                return "token_symbols";
+            }
+        }
+        return s;
+    }
+
     @Override
     public Token[] process(Token[] tokens) {
         Token[] filtered = Arrays.stream(tokens)//
                 .map(Token::getText)
-                .map(_stemmer::stem) //
-                .filter(s -> s.length() >= this.tokenMinLength) // filter short
-                .filter(s -> s.length() < this.tokenMaxLength) // filter long
-                .filter(s -> !StringUtils.isNumeric(s))// filter numbers
                 .filter(s -> {
                     Character.UnicodeScript script = Character.UnicodeScript.of(s.codePointAt(0));
                     return script.equals(Character.UnicodeScript.COMMON) || script.equals(Character.UnicodeScript.LATIN);
                 })// latin
+                .map(s -> StringUtils.remove(s, '\'')) // replace quotes
+                .map(s -> StringUtils.remove(s, '\"')) // replace quotes
+                .map(StringUtils::stripAccents)
+                .map(StemmingNGrammProcessor::replaceToken)
+                .map(s -> s.contains("_") ? s : _stemmer.stem(s)) // stem words
+                .filter(s -> s.length() >= this.tokenMinLength) // filter short
+                .filter(s -> s.length() < this.tokenMaxLength) // filter long
                 .map(Token::new)
                 .toArray(Token[]::new);
 

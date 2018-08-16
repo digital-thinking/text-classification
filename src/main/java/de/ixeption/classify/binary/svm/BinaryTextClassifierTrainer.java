@@ -26,8 +26,6 @@ public class BinaryTextClassifierTrainer {
     private final TextProcessingPipeline textProcessingPipeline;
     private final double softmarginPenaltyPositive;
     private final double softmarginPenaltyNegative;
-    private SparseArray[] sparseArrays;
-    private int[] labels;
     private SVM<SparseArray> sparseArraySVM;
 
     /**
@@ -49,33 +47,43 @@ public class BinaryTextClassifierTrainer {
      *
      * @param features the features
      * @param labels   the labels
+     * @param batchSize null or batch size
      * @return a trained classifier
      */
-    public TrainedBinaryTextClassifier train(TextFeature[] features, int[] labels) {
-        sparseArrays = Arrays.stream(features)//
-                .map(this::transform)//
-                .toArray(SparseArray[]::new);
-        this.labels = labels;
-        return train();
-    }
-
-    /**
-     * train the classifier, without executing feature transformation again
-     * Can only be executed after {@link BinaryTextClassifierTrainer#crossValidate(TextFeature[], int[])} has been called
-     *
-     * @return the trained classifier
-     * @throws IllegalStateException if the method is called before cross validation was executed
-     */
-    public TrainedBinaryTextClassifier train() {
-        if (sparseArrays == null || labels == null)
-            throw new IllegalStateException("this method can only be used, if cross Validation has been executed before");
+    public TrainedBinaryTextClassifier train(TextFeature[] features, int[] labels, Integer batchSize) {
         log.info("Starting training");
         sparseArraySVM = new SVM<>(new SparseLinearKernel(), softmarginPenaltyPositive, softmarginPenaltyNegative);
-        sparseArraySVM.learn(sparseArrays, labels);
-        sparseArraySVM.finish();
-        sparseArraySVM.trainPlattScaling(sparseArrays, labels);
+        trainInternal(sparseArraySVM, features, labels, batchSize == null ? features.length : batchSize);
         log.info("Training finished");
         return new TrainedBinaryTextClassifier(this);
+    }
+
+
+    private void trainInternal(SVM<SparseArray> sparseArraySVM, TextFeature[] features, int[] labels, int batchSize) {
+        SparseArray[] sparseArrays = Arrays.stream(features)//
+                .map(this::transform)//
+                .toArray(SparseArray[]::new);
+
+        int rest = sparseArrays.length % batchSize;
+        int chunks = sparseArrays.length / batchSize + (rest > 0 ? 1 : 0);
+        log.info("Batched Training batchSize: " + batchSize + " batches: " + chunks);
+        for (int i = 0; i < (rest > 0 ? chunks - 1 : chunks); i++) {
+            SparseArray[] featureBatch = Arrays.copyOfRange(sparseArrays, i * batchSize, i * batchSize + batchSize);
+            int[] lablelBatch = Arrays.copyOfRange(labels, i * batchSize, i * batchSize + batchSize);
+            sparseArraySVM.learn(featureBatch, lablelBatch);
+            sparseArraySVM.finish();
+            log.info("Finished: " + (i + 1) + "/" + chunks);
+        }
+        if (rest > 0) {
+            SparseArray[] featureBatch = Arrays.copyOfRange(sparseArrays, (chunks - 1) * batchSize, (chunks - 1) * batchSize + rest);
+            int[] lablelBatch = Arrays.copyOfRange(labels, (chunks - 1) * batchSize, (chunks - 1) * batchSize + rest);
+            sparseArraySVM.learn(featureBatch, lablelBatch);
+            sparseArraySVM.finish();
+            log.info("Finished: " + chunks + "/" + chunks);
+        }
+
+        sparseArraySVM.trainPlattScaling(sparseArrays, labels);
+
     }
 
     private SparseArray transform(TextFeature textFeature) {
@@ -97,8 +105,7 @@ public class BinaryTextClassifierTrainer {
         SVM.Trainer<SparseArray> svmTrainer = new SVM.Trainer<>(new SparseLinearKernel(), softmarginPenaltyPositive,
                 softmarginPenaltyNegative);
         BinaryUtils.BinaryConfusionMatrixMeasure confusionMatrix = new BinaryUtils.BinaryConfusionMatrixMeasure();
-        this.labels = labels;
-        sparseArrays = Arrays.stream(features)//
+        SparseArray[] sparseArrays = Arrays.stream(features)//
                 .map(this::transform)//
                 .toArray(SparseArray[]::new);
         double[] measures = Validation.cv(10, svmTrainer, sparseArrays, labels,

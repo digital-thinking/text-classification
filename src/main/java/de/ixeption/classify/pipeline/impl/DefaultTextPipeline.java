@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.TextFeatureExtractor;
 import de.ixeption.classify.pipeline.TextProcessingPipeline;
+import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.postprocessing.TokenProcessor;
 import de.ixeption.classify.preprocessing.TextPreprocessor;
 import de.ixeption.classify.tokenization.TextTokenizer;
@@ -15,55 +16,77 @@ import java.util.List;
 
 public class DefaultTextPipeline implements TextProcessingPipeline {
 
-   private final List<TokenProcessor> tokenProcessors;
 
-   public DefaultTextPipeline(TextFeatureExtractor textFeatureExtractor, TextTokenizer textTokenizer) {
-      preprocessors = Lists.newArrayList();
-      tokenProcessors = Lists.newArrayList();
-      this.textFeatureExtractor = textFeatureExtractor;
-      this.textTokenizer = textTokenizer;
-   }
+    private List<TokenProcessor> tokenProcessors;
+    private List<TextPreprocessor> preprocessors;
+    private TextTokenizer textTokenizer;
+    private TextFeatureExtractor textFeatureExtractor;
 
-   public TextTokenizer getTextTokenizer() {
-      return textTokenizer;
-   }
+    public DefaultTextPipeline(TextFeatureExtractor textFeatureExtractor, TextTokenizer textTokenizer) {
+        preprocessors = Lists.newArrayList();
+        tokenProcessors = Lists.newArrayList();
+        this.textFeatureExtractor = textFeatureExtractor;
+        this.textTokenizer = textTokenizer;
+    }
 
-   private final List<TextPreprocessor> preprocessors;
-   private final TextTokenizer textTokenizer;
-   private final TextFeatureExtractor textFeatureExtractor;
+    public List<TextPreprocessor> getPreprocessors() {
+        return preprocessors;
+    }
 
-   public TextFeatureExtractor getTextFeatureExtractor() {
-      return textFeatureExtractor;
-   }
+    public void setPreprocessors(List<TextPreprocessor> preprocessors) {
+        this.preprocessors = preprocessors;
+    }
 
-   public List<TextPreprocessor> getPreprocessors() {
-      return preprocessors;
-   }
+    public TextTokenizer getTextTokenizer() {
+        return textTokenizer;
+    }
 
-   @Override
-   public SparseArray process(TextFeature textFeature) {
-      for (TextPreprocessor tp : preprocessors) {
-         textFeature = tp.preprocess(textFeature);
-      }
-      Token[] tokens = textTokenizer.tokenize(textFeature);
-      for (TokenProcessor tp : tokenProcessors) {
-         tokens = tp.process(tokens);
-      }
-      return textFeatureExtractor.extract(tokens);
+    public void setTextTokenizer(TextTokenizer textTokenizer) {
+        this.textTokenizer = textTokenizer;
+    }
 
-   }
+    public TextFeatureExtractor getTextFeatureExtractor() {
+        return textFeatureExtractor;
+    }
 
-   @Override
-   public int getIndex(String s) throws IndexerException {
-      return textFeatureExtractor.getIndex(s);
-   }
+    public void setTextFeatureExtractor(TextFeatureExtractor textFeatureExtractor) {
+        this.textFeatureExtractor = textFeatureExtractor;
+    }
 
-   @Override
-   public String getToken(int index) throws IndexerException {
-      return textFeatureExtractor.getToken(index);
-   }
+    @Override
+    public SparseArray process(TextFeature textFeature) {
+        return textFeatureExtractor.extract(prepare(textFeature).getTokens());
 
-   public List<TokenProcessor> getTokenProcessors() {
-      return tokenProcessors;
-   }
+    }
+
+    @Override
+    public TokenizedText prepare(TextFeature textFeature) {
+        for (TextPreprocessor tp : preprocessors) {
+            textFeature = tp.preprocess(textFeature);
+        }
+        Token[] tokens = textTokenizer.tokenize(textFeature);
+        for (TokenProcessor tp : tokenProcessors) {
+            tokens = tp.process(tokens);
+        }
+        return new TokenizedText(tokens, textFeature.getLanguage());
+
+    }
+
+    @Override
+    public int getIndex(String s) throws IndexerException {
+        return textFeatureExtractor.getIndex(s);
+    }
+
+    @Override
+    public String getToken(int index) throws IndexerException {
+        return textFeatureExtractor.getToken(index);
+    }
+
+    public List<TokenProcessor> getTokenProcessors() {
+        return tokenProcessors;
+    }
+
+    public void setTokenProcessors(List<TokenProcessor> tokenProcessors) {
+        this.tokenProcessors = tokenProcessors;
+    }
 }
