@@ -1,8 +1,8 @@
 package de.ixeption.classify.postprocessing.impl;
 
 import com.google.common.collect.Lists;
+import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.postprocessing.TokenProcessor;
-import de.ixeption.classify.tokenization.Token;
 import org.apache.commons.lang3.StringUtils;
 import smile.nlp.stemmer.PorterStemmer;
 import smile.nlp.stemmer.Stemmer;
@@ -44,9 +44,8 @@ public class StemmingNGrammProcessor implements TokenProcessor {
     }
 
     @Override
-    public Token[] process(Token[] tokens) {
-        Token[] filtered = Arrays.stream(tokens)//
-                .map(Token::getText)
+    public TokenizedText process(TokenizedText tokenizedText) {
+        String[] filtered = Arrays.stream(tokenizedText.getTokens())//
                 .filter(s -> {
                     Character.UnicodeScript script = Character.UnicodeScript.of(s.codePointAt(0));
                     return script.equals(Character.UnicodeScript.COMMON) || script.equals(Character.UnicodeScript.LATIN);
@@ -56,23 +55,23 @@ public class StemmingNGrammProcessor implements TokenProcessor {
                 .map(StringUtils::stripAccents)
                 .map(StemmingNGrammProcessor::replaceToken)
                 .map(s -> s.contains("_") ? s : _stemmer.stem(s)) // stem words
-                .filter(s -> s.length() >= this.tokenMinLength) // filter short
-                .filter(s -> s.length() < this.tokenMaxLength) // filter long
-                .map(Token::new)
-                .toArray(Token[]::new);
+                .filter(s -> s.contains("_") || s.length() >= this.tokenMinLength) // filter short
+                .filter(s -> s.contains("_") || s.length() < this.tokenMaxLength) // filter long
+                .toArray(String[]::new);
 
-        return addNGrams(filtered);
+        tokenizedText.setTokens(addNGrams(filtered));
+        return tokenizedText;
     }
 
     public int getnGramsCount() {
         return nGramsCount;
     }
 
-    private Token[] addNGrams(Token[] tokens) {
+    private String[] addNGrams(String[] tokens) {
         if (getnGramsCount() == 0) {
             return tokens;
         }
-        List<Token> nGramms = Lists.newArrayList();
+        List<String> nGramms = Lists.newArrayList();
         // n-gram
         int n = getnGramsCount();
         int counts = tokens.length - n + 1;
@@ -81,13 +80,13 @@ public class StemmingNGrammProcessor implements TokenProcessor {
             int end = k + n;
             for (int j = k; j < end; j++) {
                 if (ngram.isEmpty()) {
-                    ngram = tokens[j].getText();
+                    ngram = tokens[j];
                 } else {
-                    ngram = ngram + TOKEN_SEPERATOR + tokens[j].getText();
+                    ngram = ngram + TOKEN_SEPERATOR + tokens[j];
                 }
             }
-            nGramms.add(new Token(ngram));
+            nGramms.add(ngram);
         }
-        return Stream.concat(Arrays.stream(tokens), nGramms.stream()).toArray(Token[]::new);
+        return Stream.concat(Arrays.stream(tokens), nGramms.stream()).toArray(String[]::new);
     }
 }

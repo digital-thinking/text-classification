@@ -8,7 +8,6 @@ import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.postprocessing.TokenProcessor;
 import de.ixeption.classify.preprocessing.TextPreprocessor;
 import de.ixeption.classify.tokenization.TextTokenizer;
-import de.ixeption.classify.tokenization.Token;
 import smile.math.SparseArray;
 
 import java.util.List;
@@ -64,11 +63,11 @@ public class DefaultTextPipeline implements TextProcessingPipeline {
         for (TextPreprocessor tp : preprocessors) {
             textFeature = tp.preprocess(textFeature);
         }
-        Token[] tokens = textTokenizer.tokenize(textFeature);
+        TokenizedText tokenizedText = textTokenizer.tokenize(textFeature);
         for (TokenProcessor tp : tokenProcessors) {
-            tokens = tp.process(tokens);
+            tokenizedText = tp.process(tokenizedText);
         }
-        return new TokenizedText(tokens, textFeature.getLanguage());
+        return tokenizedText;
 
     }
 

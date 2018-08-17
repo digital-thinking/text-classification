@@ -1,8 +1,8 @@
 package de.ixeption.classify.postprocessing;
 
-import de.ixeption.classify.tokenization.Token;
+import de.ixeption.classify.pipeline.TokenizedText;
 
 @FunctionalInterface
 public interface TokenProcessor {
-    Token[] process(Token[] token);
+    TokenizedText process(TokenizedText token);
 }

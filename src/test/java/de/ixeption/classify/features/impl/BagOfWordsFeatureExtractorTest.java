@@ -2,8 +2,8 @@ package de.ixeption.classify.features.impl;
 
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
+import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
-import de.ixeption.classify.tokenization.Token;
 import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +24,7 @@ public class BagOfWordsFeatureExtractorTest {
     static StemmingNGrammProcessor processor = new StemmingNGrammProcessor(2, MIN_LENGTH, 25);
     private static BagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
     private static NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
-    private static LinkedHashSet<Token> corpus;
+    private static LinkedHashSet<String> corpus;
     private static Set<String> sentences;
 
     @BeforeAll
@@ -43,6 +43,7 @@ public class BagOfWordsFeatureExtractorTest {
                 .map(TextFeature::new)
                 .map(normalizingTextTokenizer::tokenize)
                 .map(processor::process)
+                .map(TokenizedText::getTokens)
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         bagOfWordsFeatureExtractor = new BagOfWordsFeatureExtractor(corpus);
@@ -52,21 +53,21 @@ public class BagOfWordsFeatureExtractorTest {
     public void testIndexExists() throws WordIndexing.IndexerException {
 
         assertThat(bagOfWordsFeatureExtractor
-                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("hello")))[0].getText())).isEqualTo(0);
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("hello"))).getTokens()[0])).isEqualTo(0);
         assertThat(bagOfWordsFeatureExtractor
-                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("fried")))[0].getText())).isEqualTo(72);
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("fried"))).getTokens()[0])).isEqualTo(72);
         assertThat(bagOfWordsFeatureExtractor
-                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("kid funky")))[2].getText())).isEqualTo(75);
+                .getIndex(processor.process(normalizingTextTokenizer.tokenize(new TextFeature("kid funky"))).getTokens()[2])).isEqualTo(75);
     }
 
     @Test
     public void testNgrams() {
         String test1 = "hello this is a test"; // 2 token + 1 ngram
         String test2 = "hello this is a test two"; // +1 token + 1 ngram
-        assertThat(normalizingTextTokenizer.tokenize(new TextFeature(test1)).length).isEqualTo(2);
-        assertThat(normalizingTextTokenizer.tokenize(new TextFeature(test2)).length).isEqualTo(3);
-        assertThat(processor.process(normalizingTextTokenizer.tokenize(new TextFeature(test1))).length).isEqualTo(3);
-        assertThat(processor.process(normalizingTextTokenizer.tokenize(new TextFeature(test2))).length).isEqualTo(5);
+        assertThat(normalizingTextTokenizer.tokenize(new TextFeature(test1)).getTokens().length).isEqualTo(2);
+        assertThat(normalizingTextTokenizer.tokenize(new TextFeature(test2)).getTokens().length).isEqualTo(3);
+        assertThat(processor.process(normalizingTextTokenizer.tokenize(new TextFeature(test1))).getTokens().length).isEqualTo(3);
+        assertThat(processor.process(normalizingTextTokenizer.tokenize(new TextFeature(test2))).getTokens().length).isEqualTo(5);
 
 
     }

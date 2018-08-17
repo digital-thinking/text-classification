@@ -1,13 +1,10 @@
 package de.ixeption.classify.pipeline;
 
-import de.ixeption.classify.tokenization.Token;
-
 public class TokenizedText {
-    private final Token[] tokens;
+    private String[] tokens;
+    private String language;
 
-    private final String language;
-
-    public TokenizedText(Token[] tokens, String language) {
+    public TokenizedText(String[] tokens, String language) {
         this.tokens = tokens;
         this.language = language;
     }
@@ -16,7 +13,15 @@ public class TokenizedText {
         return language;
     }
 
-    public Token[] getTokens() {
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String[] getTokens() {
         return tokens;
+    }
+
+    public void setTokens(String[] tokens) {
+        this.tokens = tokens;
     }
 }

@@ -2,8 +2,8 @@ package de.ixeption.classify.tokenization.impl;
 
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.impl.AbstractBagOfWordsFeatureExtractor;
+import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.tokenization.TextTokenizer;
-import de.ixeption.classify.tokenization.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,15 @@ public class NormalizingTextTokenizer implements TextTokenizer {
 
 
     @Override
-    public Token[] tokenize(TextFeature textFeature) {
+    public TokenizedText tokenize(TextFeature textFeature) {
         String normalized = _normalizer != null ? _normalizer.normalize(textFeature.getText()) : textFeature.getText();
         String[] split = _tokenizer.split(normalized.toLowerCase());
-        return Arrays.stream(split)
+        String[] tokens = Arrays.stream(split)
                 .filter(StringUtils::isNotEmpty)
                 .filter(s -> !_stopWords.contains(s))
-                .map(Token::new)
-                .toArray(Token[]::new);
+                .toArray(String[]::new);
+
+        return new TokenizedText(tokens, textFeature.getLanguage());
     }
 
 

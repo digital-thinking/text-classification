@@ -8,11 +8,10 @@ public final class PersistenceUtils {
     }
 
     /**
-     *
      * @param fileName the file to save to
-     * @param <T> the object type
+     * @param <T>      the object type
      * @return deserialized object
-     * @throws IOException if file is not valid
+     * @throws IOException            if file is not valid
      * @throws ClassNotFoundException if the class is not found
      */
     @SuppressWarnings("unchecked")
@@ -27,10 +26,9 @@ public final class PersistenceUtils {
     }
 
     /**
-     *
-     * @param obj the object to serialize
+     * @param obj      the object to serialize
      * @param fileName the file to load from
-     * @param <T> the object type
+     * @param <T>      the object type
      * @throws IOException if the file is not found
      */
     public static <T> void serialize(T obj, Path fileName) throws IOException {

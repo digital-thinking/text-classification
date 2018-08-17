@@ -45,8 +45,8 @@ public class BinaryTextClassifierTrainer {
     /**
      * train the classifier
      *
-     * @param features the features
-     * @param labels   the labels
+     * @param features  the features
+     * @param labels    the labels
      * @param batchSize null or batch size
      * @return a trained classifier
      */
