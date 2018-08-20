@@ -1,7 +1,8 @@
 package de.ixeption.classify.postprocessing;
 
 import de.ixeption.classify.pipeline.TokenizedText;
-import org.tartarus.snowball.SnowballStemmer;
+import org.apache.commons.lang3.StringUtils;
+import org.tartarus.snowball.SnowballProgram;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class LanguageAgnosticStemmer implements TokenProcessor {
 
-    Map<String, SnowballStemmer> stemmers = new HashMap<>();
+    Map<String, SnowballProgram> stemmers = new HashMap<>();
 
     @Override
     public TokenizedText process(TokenizedText tokenizedText) {
@@ -34,7 +35,7 @@ public class LanguageAgnosticStemmer implements TokenProcessor {
             if (stemmers.containsKey(finalLangEnum.key)) {
                 return stemInternal(s, stemmers.get(finalLangEnum.key));
             } else {
-                SnowballStemmer stemmer = (SnowballStemmer) Class.forName(finalLangEnum.clazz).newInstance();
+                SnowballProgram stemmer = (SnowballProgram) Class.forName(finalLangEnum.clazz).newInstance();
                 stemmers.put(finalLangEnum.key, stemmer);
                 return stemInternal(s, stemmer);
             }
@@ -44,7 +45,7 @@ public class LanguageAgnosticStemmer implements TokenProcessor {
         return s;
     }
 
-    private String stemInternal(String s, SnowballStemmer snowballStemmer) {
+    private String stemInternal(String s, SnowballProgram snowballStemmer) {
         snowballStemmer.setCurrent(s);
         snowballStemmer.stem();
         return snowballStemmer.getCurrent();
@@ -72,7 +73,7 @@ public class LanguageAgnosticStemmer implements TokenProcessor {
 
         SupportedLanguages(String key) {
             this.key = key;
-            this.clazz = String.format("org.tartarus.snowball.ext.%sStemmer", name().toLowerCase());
+            this.clazz = String.format("org.tartarus.snowball.ext.%sStemmer", StringUtils.capitalize(name().toLowerCase()));
         }
 
         public static SupportedLanguages fromKey(String lang) throws IllegalArgumentException {
