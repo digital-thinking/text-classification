@@ -3,7 +3,7 @@ package de.ixeption.classify.features.impl;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
 import de.ixeption.classify.pipeline.TokenizedText;
-import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.postprocessing.impl.DefaultProcessor;
 import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class BagOfWordsFeatureExtractorTest {
 
     public static final int MIN_LENGTH = 3;
-    static StemmingNGrammProcessor processor = new StemmingNGrammProcessor(2, MIN_LENGTH, 25);
+    static DefaultProcessor processor = new DefaultProcessor(2, MIN_LENGTH, 25);
     private static BagOfWordsFeatureExtractor bagOfWordsFeatureExtractor;
     private static NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
     private static LinkedHashSet<String> corpus;

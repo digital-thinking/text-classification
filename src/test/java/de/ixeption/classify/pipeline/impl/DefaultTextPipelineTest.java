@@ -5,7 +5,7 @@ import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
 import de.ixeption.classify.features.impl.BagOfWordsFeatureExtractor;
 import de.ixeption.classify.features.impl.HashTrickBagOfWordsFeatureExtractor;
-import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.postprocessing.impl.DefaultProcessor;
 import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.junit.jupiter.api.Test;
 import smile.math.SparseArray;
@@ -24,7 +24,7 @@ class DefaultTextPipelineTest {
     @Test
     void testFeatureIndex() throws WordIndexing.IndexerException {
         DefaultTextPipeline cut = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new NormalizingTextTokenizer());
-        cut.getTokenProcessors().add(new StemmingNGrammProcessor(N_GRAMS, 2, 25));
+        cut.getTokenProcessors().add(new DefaultProcessor(N_GRAMS, 2, 25));
 
         cut.process(new TextFeature("Hallo this is a test"));
         int index = cut.getIndex("hallo");
@@ -37,7 +37,7 @@ class DefaultTextPipelineTest {
         TextFeature textFeature = new TextFeature("zero Three");
 
         DefaultTextPipeline cut = new DefaultTextPipeline(featureExtractor, new NormalizingTextTokenizer());
-        cut.getTokenProcessors().add(new StemmingNGrammProcessor(N_GRAMS, 2, 25));
+        cut.getTokenProcessors().add(new DefaultProcessor(N_GRAMS, 2, 25));
         SparseArray sparseArray = cut.process(textFeature);
 
         Path path = Files.createTempFile("bow", ".dict");
@@ -45,7 +45,7 @@ class DefaultTextPipelineTest {
 
         BagOfWordsFeatureExtractor deserialize = BagOfWordsFeatureExtractor.deserialize(path);
         DefaultTextPipeline cut2 = new DefaultTextPipeline(deserialize, new NormalizingTextTokenizer());
-        cut2.getTokenProcessors().add(new StemmingNGrammProcessor(N_GRAMS, 2, 25));
+        cut2.getTokenProcessors().add(new DefaultProcessor(N_GRAMS, 2, 25));
         SparseArray sparseArray2 = cut2.process(textFeature);
         assertThat(sparseArray2.size()).isEqualTo(sparseArray.size());
         for (SparseArray.Entry entry : sparseArray) {

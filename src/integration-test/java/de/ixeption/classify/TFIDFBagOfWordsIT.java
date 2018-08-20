@@ -7,7 +7,7 @@ import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.impl.BagOfWordsFeatureExtractor;
 import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.pipeline.impl.DefaultTextPipeline;
-import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.postprocessing.impl.DefaultProcessor;
 import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
@@ -35,11 +35,11 @@ public class TFIDFBagOfWordsIT {
         FeatureUtils.shuffle(textFeatures, labels);
 
         NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
-        StemmingNGrammProcessor stemmingNGrammProcessor = new StemmingNGrammProcessor(3, 3, 25);
+        DefaultProcessor filteringProcessor = new DefaultProcessor(3, 3, 25);
 
-        Set<String> corpus = textFeatures.stream().map(normalizingTextTokenizer::tokenize).map(stemmingNGrammProcessor::process).map(TokenizedText::getTokens).flatMap(Arrays::stream).collect(Collectors.toSet());
+        Set<String> corpus = textFeatures.stream().map(normalizingTextTokenizer::tokenize).map(filteringProcessor::process).map(TokenizedText::getTokens).flatMap(Arrays::stream).collect(Collectors.toSet());
         DefaultTextPipeline pipeline = new DefaultTextPipeline(new BagOfWordsFeatureExtractor(corpus), normalizingTextTokenizer);
-        pipeline.getTokenProcessors().add(stemmingNGrammProcessor);
+        pipeline.getTokenProcessors().add(filteringProcessor);
 
         BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, pipeline);
 

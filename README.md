@@ -13,11 +13,11 @@ Out of the box text classification library in java built on top of the [smile fr
       FeatureUtils.shuffle(textFeatures, labels);
 
       NormalizingTextTokenizer normalizingTextTokenizer = new NormalizingTextTokenizer();
-      StemmingNGrammProcessor stemmingNGrammProcessor = new StemmingNGrammProcessor(3, 3, 25);
+      StemmingNGrammProcessor filteringProcessor = new StemmingNGrammProcessor(3, 3, 25);
 
-      Set<Token> corpus = textFeatures.stream().map(normalizingTextTokenizer::tokenize).map(stemmingNGrammProcessor::process).flatMap(Arrays::stream).collect(Collectors.toSet());
+      Set<Token> corpus = textFeatures.stream().map(normalizingTextTokenizer::tokenize).map(filteringProcessor::process).flatMap(Arrays::stream).collect(Collectors.toSet());
       DefaultTextPipeline pipeline = new DefaultTextPipeline(new BagOfWordsFeatureExtractor(corpus), normalizingTextTokenizer);
-      pipeline.getTokenProcessors().add(stemmingNGrammProcessor);
+      pipeline.getTokenProcessors().add(filteringProcessor);
 
       BinaryTextClassifierTrainer binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, pipeline);
 

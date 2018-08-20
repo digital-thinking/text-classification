@@ -4,7 +4,7 @@ import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.WordIndexing;
 import de.ixeption.classify.pipeline.TokenizedText;
 import de.ixeption.classify.postprocessing.TokenProcessor;
-import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.postprocessing.impl.DefaultProcessor;
 import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AbstractBagOfWordsFeatureExtractorTest {
 
     private static final int MIN_LENGTH = 3;
-    static TokenProcessor processor = new StemmingNGrammProcessor(1, MIN_LENGTH, 25);
+    static TokenProcessor processor = new DefaultProcessor(1, MIN_LENGTH, 25);
 
     public static Stream<AbstractBagOfWordsFeatureExtractor> getImplementations() {
         Set<String> corpus = Sets.newLinkedHashSet();

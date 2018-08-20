@@ -4,5 +4,5 @@ import de.ixeption.classify.pipeline.TokenizedText;
 
 @FunctionalInterface
 public interface TokenProcessor {
-    TokenizedText process(TokenizedText token);
+    TokenizedText process(TokenizedText tokenizedText);
 }

@@ -6,7 +6,7 @@ import de.ixeption.classify.binary.svm.TrainedBinaryTextClassifier;
 import de.ixeption.classify.features.TextFeature;
 import de.ixeption.classify.features.impl.HashTrickBagOfWordsFeatureExtractor;
 import de.ixeption.classify.pipeline.impl.DefaultTextPipeline;
-import de.ixeption.classify.postprocessing.impl.StemmingNGrammProcessor;
+import de.ixeption.classify.postprocessing.impl.DefaultProcessor;
 import de.ixeption.classify.tokenization.impl.NormalizingTextTokenizer;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +29,7 @@ class BinaryTextClassifierTrainerTest {
         testFeatures = new TextFeature[]{textFeatureA, textFeatureB};
         testLabels = new int[]{0, 1};
         DefaultTextPipeline pipeline = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new NormalizingTextTokenizer());
-        pipeline.getTokenProcessors().add(new StemmingNGrammProcessor(2, 2, 25));
+        pipeline.getTokenProcessors().add(new DefaultProcessor(2, 2, 25));
         binaryTextClassifierTrainer = new BinaryTextClassifierTrainer(0.5, 0.5, pipeline);
 
     }
@@ -52,7 +52,7 @@ class BinaryTextClassifierTrainerTest {
         binaryTextClassifierTrainer.saveToFile(path);
 
         DefaultTextPipeline pipeline = new DefaultTextPipeline(new HashTrickBagOfWordsFeatureExtractor(1337), new NormalizingTextTokenizer());
-        pipeline.getTokenProcessors().add(new StemmingNGrammProcessor(2, 2, 25));
+        pipeline.getTokenProcessors().add(new DefaultProcessor(2, 2, 25));
 
         TextClassifier persisted = new DeserializedSVMTextClassifier(
                 pipeline, path);
