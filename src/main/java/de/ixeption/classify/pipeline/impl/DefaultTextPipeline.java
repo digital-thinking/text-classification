@@ -60,15 +60,29 @@ public class DefaultTextPipeline implements TextProcessingPipeline {
 
     @Override
     public TokenizedText prepare(TextFeature textFeature) {
-        for (TextPreprocessor tp : preprocessors) {
-            textFeature = tp.preprocess(textFeature);
-        }
-        TokenizedText tokenizedText = textTokenizer.tokenize(textFeature);
+        textFeature = preprocess(textFeature);
+        TokenizedText tokenizedText = tokenize(textFeature);
+        tokenizedText = processTokens(tokenizedText);
+        return tokenizedText;
+
+    }
+
+    public TokenizedText processTokens(TokenizedText tokenizedText) {
         for (TokenProcessor tp : tokenProcessors) {
             tokenizedText = tp.process(tokenizedText);
         }
         return tokenizedText;
+    }
 
+    public TokenizedText tokenize(TextFeature textFeature) {
+        return textTokenizer.tokenize(textFeature);
+    }
+
+    public TextFeature preprocess(TextFeature textFeature) {
+        for (TextPreprocessor tp : preprocessors) {
+            textFeature = tp.preprocess(textFeature);
+        }
+        return textFeature;
     }
 
     @Override
