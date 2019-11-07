@@ -9,4 +9,9 @@ public interface TextProcessingPipeline extends WordIndexing {
 
     TokenizedText prepare(TextFeature textFeature);
 
+    TokenizedText processTokens(TokenizedText tokenizedText);
+
+    TokenizedText tokenize(TextFeature textFeature);
+
+    TextFeature preprocess(TextFeature textFeature);
 }

@@ -67,6 +67,7 @@ public class DefaultTextPipeline implements TextProcessingPipeline {
 
     }
 
+    @Override
     public TokenizedText processTokens(TokenizedText tokenizedText) {
         for (TokenProcessor tp : tokenProcessors) {
             tokenizedText = tp.process(tokenizedText);
@@ -74,10 +75,12 @@ public class DefaultTextPipeline implements TextProcessingPipeline {
         return tokenizedText;
     }
 
+    @Override
     public TokenizedText tokenize(TextFeature textFeature) {
         return textTokenizer.tokenize(textFeature);
     }
 
+    @Override
     public TextFeature preprocess(TextFeature textFeature) {
         for (TextPreprocessor tp : preprocessors) {
             textFeature = tp.preprocess(textFeature);
