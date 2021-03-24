@@ -21,13 +21,37 @@ public class NormalizingTextTokenizer implements TextTokenizer {
 
 
     private static final Logger log = LoggerFactory.getLogger(AbstractBagOfWordsFeatureExtractor.class);
-    private final Tokenizer _tokenizer = new BreakIteratorTokenizer();
-    private final StopWords _stopWords = EnglishStopWords.GOOGLE;
-    private final Normalizer _normalizer = SimpleNormalizer.getInstance();
+    private Tokenizer _tokenizer = new BreakIteratorTokenizer();
+    private StopWords _stopWords = EnglishStopWords.GOOGLE;
+    private Normalizer _normalizer = SimpleNormalizer.getInstance();
 
+
+    public Tokenizer getTokenizer() {
+        return _tokenizer;
+    }
+
+    public void setTokenizer(Tokenizer _tokenizer) {
+        this._tokenizer = _tokenizer;
+    }
+
+    public StopWords getStopWords() {
+        return _stopWords;
+    }
+
+    public void setStopWords(StopWords _stopWords) {
+        this._stopWords = _stopWords;
+    }
+
+    public Normalizer getNormalizer() {
+        return _normalizer;
+    }
+
+    public void setNormalizer(Normalizer _normalizer) {
+        this._normalizer = _normalizer;
+    }
 
     @Override
-    public TokenizedText tokenize(TextFeature textFeature) {
+    public synchronized TokenizedText tokenize(TextFeature textFeature) {
         String normalized = _normalizer != null ? _normalizer.normalize(textFeature.getText()) : textFeature.getText();
         String[] split = _tokenizer.split(normalized.toLowerCase());
         String[] tokens = Arrays.stream(split)
